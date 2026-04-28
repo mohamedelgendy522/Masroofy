@@ -20,4 +20,7 @@ public class AUTH {
             return false;
         }
     }
+    public boolean isValidID(int inputid, int userid){
+        return inputid == userid;
+    }
 }

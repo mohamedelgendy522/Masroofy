@@ -184,6 +184,27 @@ class ExpenseDAO {
         return list;
     }
 
+    public double getWeeklyTotal(int cycleId, LocalDate from, LocalDate to) {
+        String sql = "SELECT SUM(amount) AS total FROM expenses " +
+                "WHERE cycle_id = ? AND type = 'EXPENSE' " +
+                "AND DATE(date) BETWEEN ? AND ?";
+
+        try (Connection conn = db.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setInt(1, cycleId);
+            stmt.setString(2, from.toString());
+            stmt.setString(3, to.toString());
+
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) return rs.getDouble("total");
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return 0.0;
+    }
+
     public boolean deleteAllExpenses(int cycleId) {
 
         String sql = "DELETE FROM expenses WHERE cycle_id = ?";

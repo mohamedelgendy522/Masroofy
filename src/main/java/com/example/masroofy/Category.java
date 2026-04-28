@@ -1,4 +1,5 @@
 package com.example.masroofy;
+import java.util.*;
 
 public class Category {
     private int id;
@@ -12,5 +13,12 @@ public class Category {
     }
     public int getCycleId() {
         return cycleId;
+    }
+    public List<String >getcategories(List<Category> C){
+        List<String> categoryNames = new ArrayList<>();
+        for (Category category : C) {
+            categoryNames.add(category.getName());
+        }
+        return categoryNames;
     }
 }
