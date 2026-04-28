@@ -46,5 +46,14 @@ public class Expense {
     public LocalDateTime getDate(){
         return date;
     }
+    public int getCategoryid() {
+        return categoryid;
+    }
+    public String getType() {
+        return type;
+    }
 
+     public int getCycleid() {
+        return cycleid;
+    }
 }

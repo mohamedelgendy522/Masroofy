@@ -3,12 +3,6 @@ package com.example.masroofy;
 import java.time.LocalDate;
 import java.util.*;
 
-// ─────────────────────────────────────────────
-// AppManager
-// الكلاس الرئيسية اللي بتتحكم في كل العمليات
-// هي الوسيط بين الـ Views والـ DAO layer
-// كل حاجة بتعدي منها — مش بيكلموا الـ DAO مباشرة
-// ─────────────────────────────────────────────
 public class AppManager {
 
     private int currentUserId;
@@ -16,7 +10,10 @@ public class AppManager {
     private CycleDAO cycleDAO;
     private ExpenseDAO expenseDAO;
     private AuthDAO authDAO;
+    private AUTH auth;
     private CategoryDAO categoryDAO;
+    private Cycle cycle;
+    private Expense expense;
 
     public AppManager() {
         // not complete
@@ -44,8 +41,14 @@ public class AppManager {
 
     // بتغير الـ PIN بعد ما تتأكد من الـ PIN القديم
     // not complete
-    public boolean changePin(String oldPin, String newPin) {
-        return false;
+    public boolean changePin(String Input ,String newPin) {
+       String oldPin = authDAO.getPin(currentUserId);
+       if(auth.changepin(oldPin,Input,newPin)){
+           return authDAO.updatePin(currentUserId, newPin);
+       }
+       else{
+           return false;
+       }
     }
 
     // بتحذف اليوزر وكل بياناته من الـ DB
