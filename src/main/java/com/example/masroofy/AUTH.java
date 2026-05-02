@@ -1,23 +1,26 @@
 package com.example.masroofy;
 
 public class AUTH {
-    // not complete
-    public boolean verfiypin(String pin,String hash){
-        if(pin.equals(hash)){
+
+    public boolean verfiypin(String oldpin,String input)
+    {
+        return oldpin.equals(input);
+    }
+
+    public boolean isValidpin(String pin)
+    {
+        return pin.matches("\\d{4}");
+    }
+
+    public boolean changepin(String oldPin, String input ,String newPin){
+        if(verfiypin(oldPin, input) && isValidpin(newPin)){
             return true;
         }
-        return false;
-    }
-    // not complete
-    public boolean isValidpin(String pin){
-        return true;
-    }
-    // not complete
-    public boolean changepin(String oldPin, String newPin){
-        if(isValidpin(newPin)){
-            // update the pin in the database
-            return true;
+        else{
+            return false;
         }
-        return false;
+    }
+    public boolean isValidID(int inputid, int userid){
+        return inputid == userid;
     }
 }
