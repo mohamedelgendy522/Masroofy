@@ -8,6 +8,7 @@ public class Cycle {
     private double total_budget;
     private LocalDate start_date;
     private LocalDate end_date;
+
     public double getRemainigBalance(double totalspent){
         return total_budget - totalspent;
     }
@@ -22,5 +23,24 @@ public class Cycle {
         this.total_budget = total_budget;
         this.start_date = start_date;
         this.end_date = end_date;
+    }
+    public int getId() {
+        return id;
+    }
+
+    public int getUserId() {
+        return user_id;
+    }
+
+    public double getTotalBudget() {
+        return total_budget;
+    }
+
+    public LocalDate getStartDate() {
+        return start_date;
+    }
+
+    public LocalDate getEndDate() {
+        return end_date;
     }
 }
