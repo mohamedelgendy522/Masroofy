@@ -1,15 +1,14 @@
 package com.example.masroofy;
 
+import javafx.geometry.Insets;
+import javafx.scene.control.Button;
+import javafx.scene.control.Label;
+import javafx.scene.control.ListView;
+import javafx.scene.layout.Region;
+import javafx.scene.layout.VBox;
+
+import java.util.List;
+
 class HistoryView {
 
-    private AppManager appManager;
-
-    public HistoryView(AppManager appManager) {
-        this.appManager = appManager;
-    }
-
-    // بترسم شاشة الـ history كاملة
-    // not complete
-    public void render() {
-    }
 }

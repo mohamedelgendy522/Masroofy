@@ -4,6 +4,7 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.sql.ResultSet;
 
 public class DataBaseManager {
     public static Connection getConnection() {
@@ -19,7 +20,7 @@ public class DataBaseManager {
         String createUsers = """
         CREATE TABLE IF NOT EXISTS users (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
-            username text
+            username TEXT NOT NULL
         );""";
 
         String createAuth = """
@@ -63,7 +64,7 @@ public class DataBaseManager {
         );""";
 
         String unique= """
-                CREATE UNIQUE INDEX idx_category_unique ON categories(cycle_id, name);
+                CREATE UNIQUE INDEX IF NOT EXISTS idx_category_unique ON categories(cycle_id, name);
         """;
 
         try (Connection conn = getConnection()) {
@@ -74,6 +75,7 @@ public class DataBaseManager {
             try (Statement stmt = conn.createStatement()) {
                 stmt.execute("PRAGMA foreign_keys = ON");
                 stmt.execute(createUsers);
+                ensureUsernameColumn(stmt);
                 stmt.execute(createAuth);
                 stmt.execute(createCycles);
                 stmt.execute(createCategories);
@@ -82,6 +84,29 @@ public class DataBaseManager {
             }
         } catch (SQLException e) {
             e.printStackTrace();
+        }
+    }
+
+    private void ensureUsernameColumn(Statement stmt) throws SQLException {
+        boolean hasUsername = false;
+        boolean hasName = false;
+
+        try (ResultSet rs = stmt.executeQuery("PRAGMA table_info(users)")) {
+            while (rs.next()) {
+                String column = rs.getString("name");
+                if ("username".equalsIgnoreCase(column)) {
+                    hasUsername = true;
+                } else if ("name".equalsIgnoreCase(column)) {
+                    hasName = true;
+                }
+            }
+        }
+
+        if (!hasUsername) {
+            stmt.execute("ALTER TABLE users ADD COLUMN username TEXT");
+            if (hasName) {
+                stmt.execute("UPDATE users SET username = name WHERE username IS NULL");
+            }
         }
     }
 }

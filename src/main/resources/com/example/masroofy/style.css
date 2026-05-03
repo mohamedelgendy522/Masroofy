@@ -1,0 +1,93 @@
+/* Settings layout */
+.settings-root {
+    -fx-background-color: #f7f5ff;
+}
+
+.settings-container {
+    -fx-max-width: 340;
+    -fx-pref-width: 340;
+}
+
+.page-title {
+    -fx-font-size: 22px;
+    -fx-font-weight: 700;
+    -fx-text-fill: #1f2430;
+}
+
+.settings-card {
+    -fx-background-color: #ffffff;
+    -fx-border-color: #ece7f7;
+    -fx-border-radius: 16;
+    -fx-background-radius: 16;
+    -fx-padding: 18;
+    -fx-effect: dropshadow(gaussian, rgba(31, 36, 48, 0.08), 16, 0.25, 0, 6);
+}
+
+.section-title {
+    -fx-font-size: 15px;
+    -fx-font-weight: 700;
+    -fx-text-fill: #2a2f3a;
+}
+
+.section-divider {
+    -fx-pref-height: 1;
+    -fx-background-color: #efe9fb;
+}
+
+.section-help {
+    -fx-text-fill: #6b7280;
+    -fx-font-size: 12px;
+}
+
+.form-row {
+    -fx-alignment: center-left;
+}
+
+/* Inputs */
+.text-input,
+.text-field,
+.password-field {
+    -fx-background-color: #fbfaff;
+    -fx-border-color: #cfe7dc;
+    -fx-border-radius: 14;
+    -fx-background-radius: 14;
+    -fx-padding: 10 12 10 12;
+    -fx-text-fill: #2a2f3a;
+    -fx-prompt-text-fill: #9aa1ad;
+    -fx-pref-width: 200;
+    -fx-min-height: 40;
+    -fx-effect: dropshadow(gaussian, rgba(18, 120, 86, 0.08), 6, 0.2, 0, 2);
+}
+
+.text-input:focused,
+.text-field:focused,
+.password-field:focused {
+    -fx-border-color: #22c55e;
+    -fx-effect: dropshadow(gaussian, rgba(34, 197, 94, 0.25), 10, 0.3, 0, 0);
+}
+
+/* Buttons */
+.primary-button,
+.danger-button {
+    -fx-background-color: #22c55e;
+    -fx-text-fill: white;
+    -fx-background-radius: 14;
+    -fx-padding: 10 18 10 18;
+    -fx-font-weight: 600;
+    -fx-font-size: 13px;
+    -fx-cursor: hand;
+    -fx-min-height: 40;
+}
+
+.primary-button:hover,
+.danger-button:hover {
+    -fx-background-color: #34d399;
+    -fx-effect: dropshadow(gaussian, rgba(34, 197, 94, 0.35), 10, 0.3, 0, 2);
+}
+
+.primary-button:pressed,
+.danger-button:pressed {
+    -fx-background-color: #16a34a;
+    -fx-scale-x: 0.98;
+    -fx-scale-y: 0.98;
+}

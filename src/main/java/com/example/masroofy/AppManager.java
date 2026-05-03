@@ -2,7 +2,6 @@ package com.example.masroofy;
 
 import java.time.LocalDate;
 import java.util.*;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 public class AppManager {
@@ -32,21 +31,29 @@ public class AppManager {
     // ── AUTH ──────────────────────────────────
 
     public int registerUser(String pin ,String name) {
-        if(auth.isValidpin(pin)){
-            currentUserId = userDAO.createUser(name);;
-            authDAO.savePin(currentUserId, pin);
+        if (name == null || name.isBlank()) {
+            return NO_USER_ID;
         }
+
+        if (!auth.isValidpin(pin)) {
+            return NO_USER_ID;
+        }
+
+        currentUserId = userDAO.createUser(name.trim());
+        if (currentUserId == NO_USER_ID) {
+            return NO_USER_ID;
+        }
+        authDAO.savePin(currentUserId, pin);
         return currentUserId;
     }
 
     public boolean login(int userId, String pin) {
-        if(auth.isValidID(userId,currentUserId) && auth.verfiypin(authDAO.getPin(userId), pin)){
+        String storedPin = authDAO.getPin(userId);
+        if (storedPin != null && auth.verfiypin(storedPin, pin)) {
             currentUserId = userId;
             return true;
         }
-        else{
-            return false;
-        }
+        return false;
     }
 
     public void logout() {
@@ -81,6 +88,9 @@ public class AppManager {
 
     public void addExpense(double amount, int categoryid , String TYPE) {
         Cycle cycle = cycleDAO.getCycleByUser(currentUserId);
+        if (cycle == null) {
+            return;
+        }
         expenseDAO.addExpense(new Expense(amount,TYPE,categoryid,LocalDateTime.now(),cycle.getId()));
     }
 
@@ -94,6 +104,9 @@ public class AppManager {
 
     public List<Expense> getAllExpenses() {
         Cycle cycle = cycleDAO.getCycleByUser(currentUserId);
+        if (cycle == null) {
+            return new ArrayList<>();
+        }
         return expenseDAO.getAllExpenses(cycle.getId());
     }
 
@@ -101,6 +114,9 @@ public class AppManager {
 
     public void addCategory(String name) {
         Cycle cycle = cycleDAO.getCycleByUser(currentUserId);
+        if (cycle == null || name == null || name.isBlank()) {
+            return;
+        }
         if (!categoryDAO.categoryExists(cycle.getId(), name)) {
             categoryDAO.addCategory(cycle.getId(), name);
         }
@@ -108,6 +124,9 @@ public class AppManager {
 
     public List<String> getCategories() {
         Cycle cycle = cycleDAO.getCycleByUser(currentUserId);
+        if (cycle == null) {
+            return new ArrayList<>();
+        }
 
         List<Category> categories = categoryDAO.getAllCategories(cycle.getId());
 
@@ -121,6 +140,18 @@ public class AppManager {
     }
 
     public boolean deleteCategory(String name) {
+        Cycle cycle = cycleDAO.getCycleByUser(currentUserId);
+        if (cycle == null || name == null) {
+            return false;
+        }
+
+        List<Category> categories = categoryDAO.getAllCategories(cycle.getId());
+        for (Category category : categories) {
+            if (category.getName().equals(name)) {
+                return categoryDAO.deleteCategory(category.getId());
+            }
+        }
+
         return false;
     }
 
@@ -128,6 +159,9 @@ public class AppManager {
 
     public void addIncome(double amount) {
         Cycle cycle = cycleDAO.getCycleByUser(currentUserId);
+        if (cycle == null) {
+            return;
+        }
         cycleDAO.addToBudget(cycle.getId(), amount);
     }
 
@@ -136,28 +170,43 @@ public class AppManager {
     public double getTotalSpent() {
 
         Cycle cycle = cycleDAO.getCycleByUser(currentUserId);
+        if (cycle == null) {
+            return 0.0;
+        }
 
         return expenseDAO.getTotalByCycle(cycle.getId());
     }
 
     public double getRemainingBalance() {
         Cycle cycle = cycleDAO.getCycleByUser(currentUserId);
+        if (cycle == null) {
+            return 0.0;
+        }
         return cycle.getRemainigBalance(getTotalSpent());
     }
 
     public double getDailyLimit() {
         Cycle cycle = cycleDAO.getCycleByUser(currentUserId);
+        if (cycle == null) {
+            return 0.0;
+        }
         return cycle.calulatedailyBudget(getTotalSpent());
     }
 
     public Map<String, Double> getCategoryTotals() {
         Cycle cycle = cycleDAO.getCycleByUser(currentUserId);
+        if (cycle == null) {
+            return new HashMap<>();
+        }
         return expenseDAO.getCategoryTotals(cycle.getId());
     }
 
     public double getWeeklyTotalSpent() {
 
         Cycle cycle = cycleDAO.getCycleByUser(currentUserId);
+        if (cycle == null) {
+            return 0.0;
+        }
 
         LocalDate today = LocalDate.now();
         LocalDate weekStart = today.minusDays(today.getDayOfWeek().getValue() - 1);
@@ -169,6 +218,9 @@ public class AppManager {
     public List<Expense> getYesterdayExpenses() {
 
         Cycle cycle = cycleDAO.getCycleByUser(currentUserId);
+        if (cycle == null) {
+            return new ArrayList<>();
+        }
 
         return expenseDAO.getExpensesByDate(cycle.getId(), LocalDate.now().minusDays(1));
     }
@@ -176,6 +228,9 @@ public class AppManager {
     public List<Expense> getTodayExpenses() {
 
         Cycle cycle = cycleDAO.getCycleByUser(currentUserId);
+        if (cycle == null) {
+            return new ArrayList<>();
+        }
 
         return expenseDAO.getExpensesByDate(cycle.getId(), LocalDate.now());
     }
@@ -183,5 +238,38 @@ public class AppManager {
 
     public int getUserId() {
         return currentUserId;
+    }
+
+    public boolean isLoggedIn() {
+        return currentUserId != NO_USER_ID;
+    }
+
+    public String getCurrentUserName() {
+        if (!isLoggedIn()) {
+            return null;
+        }
+        User user = userDAO.getUserById(currentUserId);
+        return user == null ? null : user.getUsername();
+    }
+
+    public int getCategoryIdByName(String name) {
+        Cycle cycle = cycleDAO.getCycleByUser(currentUserId);
+        if (cycle == null || name == null) {
+            return -1;
+        }
+
+        List<Category> categories = categoryDAO.getAllCategories(cycle.getId());
+        for (Category category : categories) {
+            if (category.getName().equals(name)) {
+                return category.getId();
+            }
+        }
+
+        return -1;
+    }
+
+    public String getCategoryNameById(int id) {
+        Category category = categoryDAO.getCategoryById(id);
+        return category == null ? null : category.getName();
     }
 }

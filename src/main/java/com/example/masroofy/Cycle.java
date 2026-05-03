@@ -33,4 +33,20 @@ public class Cycle {
     public int getId(){
         return id;
     }
+
+    public int getUserId() {
+        return user_id;
+    }
+
+    public double getTotalBudget() {
+        return total_budget;
+    }
+
+    public LocalDate getStartDate() {
+        return start_date;
+    }
+
+    public LocalDate getEndDate() {
+        return end_date;
+    }
 }
