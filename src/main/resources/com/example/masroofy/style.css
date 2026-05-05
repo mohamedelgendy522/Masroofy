@@ -29,6 +29,14 @@
     -fx-pref-width: 6px;
 }
 
+}
+
+/* Hide scroll bar visually but keep it functional */
+.settings-scroll .scroll-bar:vertical {
+    -fx-background-color: #0F1422;
+    -fx-pref-width: 6px;
+}
+
 .settings-scroll .scroll-bar:vertical .thumb {
     -fx-background-color: #2E3854;
     -fx-background-radius: 3px;
@@ -259,6 +267,113 @@
 .tag-food {
     -fx-background-color: #1A2C18;
     -fx-text-fill: #4ADE80;
+}
+
+.tag-transport {
+    -fx-background-color: #1A2038;
+    -fx-text-fill: #818CF8;
+}
+
+.tag-health {
+    -fx-background-color: #2A1A1A;
+    -fx-text-fill: #F87171;
+}
+
+.tag-ent {
+    -fx-background-color: #261A30;
+    -fx-text-fill: #C084FC;
+}
+
+.tag-util {
+    -fx-background-color: #1A2530;
+    -fx-text-fill: #38BDF8;
+}
+
+
+/* ── 10. STATS VIEW ─────────────────────────────── */
+
+.stats-root {
+    -fx-background-color: #0B0F1A;
+}
+
+.stats-title {
+    -fx-text-fill: #F0F2FF;
+    -fx-font-size: 18px;
+    -fx-font-weight: bold;
+}
+
+.stats-card {
+    -fx-background-color: #131929;
+    -fx-background-radius: 16;
+    -fx-border-color: #1E2B45;
+    -fx-border-radius: 16;
+    -fx-border-width: 1;
+    -fx-padding: 18;
+    -fx-effect: dropshadow(gaussian, rgba(124,58,237,0.08), 16, 0.15, 0, 2);
+}
+
+.stats-subtitle {
+    -fx-text-fill: #A6B0CF;
+    -fx-font-size: 12px;
+}
+
+.stats-amount {
+    -fx-text-fill: #F0F2FF;
+    -fx-font-size: 26px;
+    -fx-font-weight: bold;
+}
+
+.stats-currency {
+    -fx-text-fill: #7C3AED;
+    -fx-font-size: 11px;
+    -fx-font-weight: bold;
+}
+
+.stats-ghost-button {
+    -fx-background-color: transparent;
+    -fx-text-fill: #C4B5FD;
+    -fx-border-color: #2E3E70;
+    -fx-border-width: 1;
+    -fx-border-radius: 10;
+    -fx-background-radius: 10;
+    -fx-padding: 9 14 9 14;
+    -fx-cursor: hand;
+}
+
+.stats-ghost-button:hover {
+    -fx-background-color: #1A2240;
+    -fx-border-color: #7C3AED;
+}
+
+.stats-section-title {
+    -fx-text-fill: #F0F2FF;
+    -fx-font-size: 13px;
+    -fx-font-weight: bold;
+}
+
+.stats-row-label {
+    -fx-text-fill: #DDE0F0;
+    -fx-font-size: 12px;
+}
+
+.stats-row-value {
+    -fx-text-fill: #C4B5FD;
+    -fx-font-size: 12px;
+    -fx-font-weight: bold;
+}
+
+.stats-dot {
+    -fx-min-width: 8;
+    -fx-min-height: 8;
+    -fx-max-width: 8;
+    -fx-max-height: 8;
+    -fx-background-radius: 6;
+    -fx-background-color: #7C3AED;
+}
+
+.stats-empty {
+    -fx-text-fill: #5A6380;
+    -fx-font-size: 12px;
 }
 
 .tag-transport {

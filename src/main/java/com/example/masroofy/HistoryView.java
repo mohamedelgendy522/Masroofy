@@ -1,4 +1,3 @@
-package com.example.masroofy;
 
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;

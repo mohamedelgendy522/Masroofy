@@ -1,8 +1,5 @@
 package com.example.masroofy;
-
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
+import java.sql.*;
 
 class AuthDAO {
 
@@ -13,64 +10,70 @@ class AuthDAO {
     }
 
     // بتحفظ الـ pin hash في DB للـ user
+    // completed
     public boolean savePin(int userId, String pinHash) {
-        String sql = "INSERT OR REPLACE INTO auth(user_id, pin_hash) VALUES(?, ?)";
 
-        try (Connection conn = db.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
+        try (
+                Connection conn = db.getConnection();
+                PreparedStatement stmt = conn.prepareStatement(
+                        "INSERT INTO auth (user_id, pin_hash) VALUES (?, ?)"
+                )
+        ){
+            stmt.setInt(1,userId);
+            stmt.setString(2,pinHash);
 
-            stmt.setInt(1, userId);
-            stmt.setString(2, pinHash);
+            if (stmt.executeUpdate() == 1 )
+                return true;
 
-            int rows = stmt.executeUpdate();
-
-            return rows > 0;
-
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
         }
-
-        return false;
+        return false ;
     }
 
     // بتجيب الـ من DB عشان تتحقق منه
+    // completed
     public String getPin(int userId) {
-        String sql = "SELECT pin_hash FROM auth WHERE user_id = ?";
 
-        try (Connection conn = db.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
+        try (
+                Connection conn = db.getConnection();
+                PreparedStatement stmt = conn.prepareStatement(
+                        "SELECT pin_hash FROM auth WHERE user_id = ?"
+                )
+        ){
 
-            stmt.setInt(1, userId);
+            stmt.setInt(1,userId);
 
-            try (ResultSet rs = stmt.executeQuery()) {
-                if (rs.next()) {
-                    return rs.getString("pin_hash");
-                }
-            }
+            ResultSet rs =  stmt.executeQuery();
 
-        } catch (Exception e) {
-            e.printStackTrace();
+            if ( rs.next() )
+                return rs.getString("pin_hash") ;
+
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
         }
 
         return null;
     }
 
     // بتحدث الـ pin hash لما اليوزر يغير الـ PIN
+    // completed
     public boolean updatePin(int userId, String newPinHash) {
-        String sql = "UPDATE auth SET pin_hash = ? WHERE user_id = ?";
 
-        try (Connection conn = db.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
+        try (
+                Connection conn = db.getConnection();
+                PreparedStatement stmt = conn.prepareStatement(
+                        "UPDATE auth SET pin_hash = ? WHERE user_id = ?"
+                )
+        ){
+            stmt.setString(1,newPinHash);
+            stmt.setInt(2,userId);
 
-            stmt.setString(1, newPinHash);
-            stmt.setInt(2, userId);
+            if(stmt.executeUpdate() == 1 )
+                return true ;
 
-            int rows = stmt.executeUpdate();
-
-            return rows > 0;
-
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (SQLException e){
+            throw new RuntimeException(e);
         }
 
         return false;
