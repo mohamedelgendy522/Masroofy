@@ -115,18 +115,27 @@ class CycleDAO {
 
         return false;
     }
-    // بتعمل reset للـ cycle — بتمسح الـ expenses والـ categories
-    // وبترجع الـ budget والتواريخ لـ default
-    public void resetCycle(int userId) {
 
+    public void resetCycle(int userId) {
         try (Connection conn = db.getConnection()) {
 
-            PreparedStatement stmt1 =
-                    conn.prepareStatement(
-                            "DELETE FROM expenses WHERE cycle_id=(SELECT id FROM cycles WHERE user_id=?)");
+            try (PreparedStatement stmt1 = conn.prepareStatement(
+                    "DELETE FROM expenses WHERE cycle_id=(SELECT id FROM cycles WHERE user_id=?)")) {
+                stmt1.setInt(1, userId);
+                stmt1.executeUpdate();
+            }
 
-            stmt1.setInt(1, userId);
-            stmt1.executeUpdate();
+            try (PreparedStatement stmt2 = conn.prepareStatement(
+                    "DELETE FROM categories WHERE cycle_id=(SELECT id FROM cycles WHERE user_id=?)")) {
+                stmt2.setInt(1, userId);
+                stmt2.executeUpdate();
+            }
+
+            try (PreparedStatement stmt3 = conn.prepareStatement(
+                    "DELETE FROM cycles WHERE user_id=?")) {
+                stmt3.setInt(1, userId);
+                stmt3.executeUpdate();
+            }
 
         } catch (SQLException e) {
             e.printStackTrace();

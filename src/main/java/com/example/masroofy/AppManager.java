@@ -72,12 +72,21 @@ public class AppManager {
 
     // ── CYCLE ─────────────────────────────────
 
+// ── CYCLE ─────────────────────────────────
+
     public void setupCycle(double totalBudget, LocalDate startDate, LocalDate endDate) {
+
         cycleDAO.setupCycle(new Cycle(currentUserId, totalBudget, startDate, endDate));
+
+        String[] defaultCategories = {"Food", "Transport", "Health", "Entertainment", "Utilities"};
+        for (String category : defaultCategories) {
+            addCategory(category);
+        }
     }
 
     public void resetCycle() {
         cycleDAO.resetCycle(currentUserId);
+
     }
 
     public Cycle getCurrentCycle() {
@@ -163,18 +172,26 @@ public class AppManager {
             return;
         }
         cycleDAO.addToBudget(cycle.getId(), amount);
+
+        expenseDAO.addExpense(new Expense(amount, "DEPOSIT", 0, LocalDateTime.now(), cycle.getId()));
     }
 
     // ── STATS ─────────────────────────────────
 
     public double getTotalSpent() {
-
         Cycle cycle = cycleDAO.getCycleByUser(currentUserId);
         if (cycle == null) {
             return 0.0;
         }
 
-        return expenseDAO.getTotalByCycle(cycle.getId());
+        List<Expense> expenses = expenseDAO.getAllExpenses(cycle.getId());
+        double total = 0.0;
+        for (Expense e : expenses) {
+            if ("EXPENSE".equalsIgnoreCase(e.getType())) {
+                total += e.getAmount();
+            }
+        }
+        return total;
     }
 
     public double getRemainingBalance() {
@@ -202,17 +219,40 @@ public class AppManager {
     }
 
     public double getWeeklyTotalSpent() {
-
         Cycle cycle = cycleDAO.getCycleByUser(currentUserId);
         if (cycle == null) {
             return 0.0;
         }
 
         LocalDate today = LocalDate.now();
+        // بنحدد بداية الأسبوع (الاثنين) ونهايته (الأحد)
         LocalDate weekStart = today.minusDays(today.getDayOfWeek().getValue() - 1);
         LocalDate weekEnd = weekStart.plusDays(6);
 
-        return expenseDAO.getWeeklyTotal(cycle.getId(), weekStart, weekEnd);
+        double weeklyTotal = 0.0;
+
+        // ✅ الحل: هنجيب كل المصاريف ونفلترها هنا في الجافا بدل الداتابيز عشان نتفادى مشكلة الوقت
+        List<Expense> expenses = expenseDAO.getAllExpenses(cycle.getId());
+
+        for (Expense e : expenses) {
+            // نتأكد إنها مصروفات مش إيداع
+            if ("EXPENSE".equalsIgnoreCase(e.getType())) {
+                try {
+                    // نقص جزء الوقت زي ما عملنا في HistoryView
+                    String dateOnly = e.getDate().toString().split("T")[0];
+                    LocalDate expDate = LocalDate.parse(dateOnly);
+
+                    // لو التاريخ بتاع المصروف ده جوه الأسبوع الحالي، اجمعه
+                    if (!expDate.isBefore(weekStart) && !expDate.isAfter(weekEnd)) {
+                        weeklyTotal += e.getAmount();
+                    }
+                } catch (Exception ex) {
+                    ex.printStackTrace();
+                }
+            }
+        }
+
+        return weeklyTotal;
     }
 
     public List<Expense> getYesterdayExpenses() {

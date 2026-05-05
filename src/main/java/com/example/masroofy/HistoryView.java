@@ -7,6 +7,7 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.*;
+import java.time.*;
 
 import java.util.*;
 import java.util.ArrayList;
@@ -26,6 +27,7 @@ public class HistoryView {
 
         ScrollPane scroll = new ScrollPane();
         scroll.setFitToWidth(true);
+        scroll.getStyleClass().add("settings-scroll");
 
         VBox container = new VBox(16);
         container.setPadding(new Insets(28, 24, 28, 24));
@@ -47,8 +49,13 @@ public class HistoryView {
         for (Expense e : expenses) {
 
             String type = e.getType(); // "EXPENSE" أو "INCOME"
-            String category = appManager.getCategoryNameById(e.getId());
-            if (category == null) category = "Unknown";
+            String category;
+            if ("DEPOSIT".equalsIgnoreCase(type)) {
+                category = "Income";
+            } else {
+                category = appManager.getCategoryNameById(e.getCategoryid());
+                if (category == null) category = "Unknown";
+            }
             double amount = e.getAmount();
             String date = e.getDate().toString();
 
@@ -144,6 +151,9 @@ public class HistoryView {
     // ========================================================
     //  TRANSACTION LIST  (rebuilt on every filter change)
     // ========================================================
+    // ========================================================
+    //  TRANSACTION LIST  (rebuilt on every filter change)
+    // ========================================================
     private void renderList() {
         listContainer.getChildren().clear();
 
@@ -161,11 +171,13 @@ public class HistoryView {
         }
 
         // Group by date
-        String lastDate = "";
+        String lastDateHeader = "";
         for (Transaction t : filtered) {
-            if (!t.date.equals(lastDate)) {
-                lastDate = t.date;
-                listContainer.getChildren().add(createDateHeader(formatDate(t.date)));
+            String currentHeader = formatDate(t.date);
+
+            if (!currentHeader.equals(lastDateHeader)) {
+                lastDateHeader = currentHeader;
+                listContainer.getChildren().add(createDateHeader(currentHeader));
             }
             listContainer.getChildren().add(createTransactionRow(t));
         }
@@ -248,9 +260,12 @@ public class HistoryView {
 
 
     private String formatDate(String raw) {
-        // raw = "2026-05-03"
-        String[] parts = raw.split("-");
-        if (parts.length != 3) return raw;
+        // ✅ الحل هنا: نقص جزء الوقت لو موجود وناخد التاريخ بس
+        String dateOnly = raw.split("T")[0];
+
+        String[] parts = dateOnly.split("-");
+        if (parts.length != 3) return dateOnly;
+
         int year  = Integer.parseInt(parts[0]);
         int month = Integer.parseInt(parts[1]);
         int day   = Integer.parseInt(parts[2]);
@@ -260,11 +275,13 @@ public class HistoryView {
                 "July","August","September","October","November","December"
         };
 
-        // Detect today (2026-05-04 per project date) and yesterday
-        String today     = "2026-05-04";
-        String yesterday = "2026-05-03";
-        if (raw.equals(today))     return "Today, " + months[month] + " " + day;
-        if (raw.equals(yesterday)) return "Yesterday, " + months[month] + " " + day;
+        // Date matching format for Today and Yesterday logic
+        String today     = LocalDate.now().toString(); // ✅ خليتها ديناميك بدل تاريخ ثابت
+        String yesterday = LocalDate.now().minusDays(1).toString(); // ✅ ديناميك برضه
+
+        if (dateOnly.equals(today))     return "Today, " + months[month] + " " + day;
+        if (dateOnly.equals(yesterday)) return "Yesterday, " + months[month] + " " + day;
+
         return months[month] + " " + day + ", " + year;
     }
 

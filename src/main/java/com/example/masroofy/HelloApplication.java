@@ -4,6 +4,7 @@ import javafx.application.Application;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
+import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
@@ -32,8 +33,8 @@ public class HelloApplication extends Application {
         Scene scene = new Scene(new VBox(), PHONE_WIDTH, PHONE_HEIGHT);
         scene.getStylesheets().add(getClass().getResource("/com/example/masroofy/style.css").toExternalForm());
 
-        // Starts directly into main layout with Dashboard to test the UI quickly
-        showMainApp(scene, appManager);
+        // ✅ التعديل الأول: أول ما يرن، نفتح شاشة اللوجين
+        scene.setRoot(buildLoginRoot(scene, appManager));
 
         stage.setTitle("Masroofy App");
         stage.setScene(scene);
@@ -50,7 +51,6 @@ public class HelloApplication extends Application {
         topHeader.getStyleClass().add("settings-card");
         topHeader.setPadding(new Insets(15, 20, 15, 20));
         topHeader.setAlignment(Pos.CENTER_LEFT);
-        // Remove lower corners rounding slightly or keep it standard card:
         topHeader.setStyle("-fx-background-radius: 0 0 16 16; -fx-border-radius: 0 0 16 16; -fx-border-width: 0 0 1 0;");
 
         String userName = appManager.getCurrentUserName();
@@ -105,14 +105,6 @@ public class HelloApplication extends Application {
         btn.setMaxWidth(Double.MAX_VALUE);
         HBox.setHgrow(btn, Priority.ALWAYS);
         return btn;
-    }
-
-    private VBox buildStatsRoot(Scene scene, AppManager appManager) {
-        return new StatsView(appManager, () -> scene.setRoot(buildHistoryRoot(scene, appManager))).getView();
-    }
-
-    private VBox buildHistoryRoot(Scene scene, AppManager appManager) {
-        return new HistoryView(appManager).getView();
     }
 
     private VBox buildLoginRoot(Scene scene, AppManager appManager)     {
@@ -198,7 +190,13 @@ public class HelloApplication extends Application {
             int userId = Integer.parseInt(userIdText);
             boolean loggedIn = appManager.login(userId, pinText);
             if (loggedIn) {
-                showMainApp(scene, appManager);
+                // ✅ التعديل التاني: لو أول مرة يفتح ومفيش Cycle هنوديه يضيف Deposit، ولو فيه Cycle يدخل Dashboard علطول
+                if (appManager.getCurrentCycle() == null) {
+                    DashboardView dv = new DashboardView(appManager);
+                    scene.setRoot(dv.getInitialDepositView(() -> showMainApp(scene, appManager)));
+                } else {
+                    showMainApp(scene, appManager);
+                }
             } else {
                 statusLabel.setText("Invalid ID or PIN.");
             }
@@ -320,7 +318,14 @@ public class HelloApplication extends Application {
             if (userId == -1) {
                 statusLabel.setText("Registration failed.");
             } else {
-                statusLabel.setText("Registered. Your ID: " + userId);
+                // ✅ التعديل التالت: يطلع رسالة فيها الـ ID بتاعه عشان ميضعش، وبعدين يرجعه لصفحة اللوجين
+                Alert alert = new Alert(Alert.AlertType.INFORMATION);
+                alert.setTitle("Registration Successful");
+                alert.setHeaderText("Welcome, " + name + "!");
+                alert.setContentText("Your User ID is: " + userId + "\n\nPlease save this ID to log in.");
+                alert.showAndWait();
+
+                scene.setRoot(buildLoginRoot(scene, appManager));
             }
         });
 

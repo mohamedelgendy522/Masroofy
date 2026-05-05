@@ -67,6 +67,15 @@ public class DashboardView {
         this.historyView = historyView;
     }
 
+    public VBox getInitialDepositView(Runnable onDone) {
+        VBox container = new VBox(20);
+        container.getStyleClass().add("settings-root");
+        container.setPadding(new Insets(40, 24, 40, 24));
+        container.setAlignment(Pos.CENTER);
+        showAddDepositPage(container, onDone);
+        return container;
+    }
+
     public VBox getAddOptionsView(Runnable onDone) {
         VBox container = new VBox(20);
         container.getStyleClass().add("settings-root");
@@ -76,7 +85,7 @@ public class DashboardView {
         Button addDepositBtn = new Button("Add Deposit");
         addDepositBtn.getStyleClass().add("success-button");
         addDepositBtn.setMaxWidth(Double.MAX_VALUE);
-        addDepositBtn.setOnAction(e -> showAddDepositPage(container, onDone));
+        addDepositBtn.setOnAction(e -> showAddIncomePage(container, onDone));
 
         Button addExpenseBtn = new Button("Add Expense");
         addExpenseBtn.getStyleClass().add("primary-button");
@@ -87,12 +96,57 @@ public class DashboardView {
         return container;
     }
 
-    private void showAddDepositPage(VBox parentContainer, Runnable onDone) {
+    private void showAddIncomePage(VBox parentContainer, Runnable onDone) {
         VBox page = new VBox(16);
         page.getStyleClass().add("settings-card");
         page.setMaxWidth(Double.MAX_VALUE);
 
         Label title = new Label("ADD DEPOSIT");
+        title.getStyleClass().add("card-title");
+
+        Label amtLabel = new Label("Amount (EGP)");
+        amtLabel.getStyleClass().add("field-label");
+        TextField amtField = new TextField();
+        amtField.setPromptText("0.00");
+        amtField.getStyleClass().add("text-input");
+
+        Label errorLbl = new Label();
+        errorLbl.getStyleClass().add("error-label");
+        errorLbl.setVisible(false);
+        errorLbl.setManaged(false);
+
+        Button submitBtn = new Button("Confirm Deposit");
+        submitBtn.getStyleClass().add("success-button");
+        submitBtn.setMaxWidth(Double.MAX_VALUE);
+
+        submitBtn.setOnAction(e -> {
+            errorLbl.setVisible(false);
+            errorLbl.setManaged(false);
+
+            // ✅ شلنا الـ Try-Catch هنا
+            double amount = Double.parseDouble(amtField.getText().trim());
+            if (amount <= 0) {
+                showError(errorLbl, "Enter a valid positive amount.");
+                return;
+            }
+
+            appManager.addIncome(amount);
+
+            refresh();
+            if (historyView != null) historyView.refresh();
+            if (onDone != null) onDone.run();
+        });
+
+        page.getChildren().addAll(title, amtLabel, amtField, errorLbl, submitBtn);
+        parentContainer.getChildren().setAll(page);
+    }
+
+    private void showAddDepositPage(VBox parentContainer, Runnable onDone) {
+        VBox page = new VBox(16);
+        page.getStyleClass().add("settings-card");
+        page.setMaxWidth(Double.MAX_VALUE);
+
+        Label title = new Label("SETUP NEW CYCLE");
         title.getStyleClass().add("card-title");
 
         Label amtLabel = new Label("Salary Amount (EGP)");
@@ -116,7 +170,7 @@ public class DashboardView {
         errorLbl.setVisible(false);
         errorLbl.setManaged(false);
 
-        Button submitBtn = new Button("Confirm Deposit");
+        Button submitBtn = new Button("Confirm");
         submitBtn.getStyleClass().add("success-button");
         submitBtn.setMaxWidth(Double.MAX_VALUE);
 
@@ -124,26 +178,25 @@ public class DashboardView {
             errorLbl.setVisible(false);
             errorLbl.setManaged(false);
 
-            try {
-                double amount = Double.parseDouble(amtField.getText().trim());
-                if (amount <= 0) throw new NumberFormatException();
-
-                LocalDate start = startDate.getValue();
-                LocalDate end = endDate.getValue();
-
-                if (start == null || end == null || end.isBefore(start)) {
-                    showError(errorLbl, "Invalid dates.");
-                    return;
-                }
-
-                // Set up cycle internally uses the deposit valuesappManager.startNewCycle(amount, start, end);
-
-                refresh();
-                if (onDone != null) onDone.run();
-
-            } catch (NumberFormatException ex) {
+            // ✅ شلنا الـ Try-Catch هنا
+            double amount = Double.parseDouble(amtField.getText().trim());
+            if (amount <= 0) {
                 showError(errorLbl, "Enter a valid positive amount.");
+                return;
             }
+
+            LocalDate start = startDate.getValue();
+            LocalDate end = endDate.getValue();
+
+            if (start == null || end == null || end.isBefore(start)) {
+                showError(errorLbl, "Invalid dates.");
+                return;
+            }
+
+            appManager.setupCycle(amount, start, end);
+
+            refresh();
+            if (onDone != null) onDone.run();
         });
 
         page.getChildren().addAll(title, amtLabel, amtField, startLabel, startDate, endLabel, endDate, errorLbl, submitBtn);
@@ -189,26 +242,25 @@ public class DashboardView {
             errorLbl.setVisible(false);
             errorLbl.setManaged(false);
 
-            try {
-                double amount = Double.parseDouble(amtField.getText().trim());
-                if (amount <= 0) throw new NumberFormatException();
-
-                String selectedCat = catCombo.getSelectionModel().getSelectedItem();
-                if (selectedCat == null || selectedCat.isBlank()) {
-                    showError(errorLbl, "Please select a category.");
-                    return;
-                }
-
-                int catId = appManager.getCategoryIdByName(selectedCat);
-                appManager.addExpense(amount, catId, "EXPENSE");
-
-                refresh();
-                if (historyView != null) historyView.refresh();
-                if (onDone != null) onDone.run();
-
-            } catch (NumberFormatException ex) {
+            // ✅ شلنا الـ Try-Catch هنا
+            double amount = Double.parseDouble(amtField.getText().trim());
+            if (amount <= 0) {
                 showError(errorLbl, "Enter a valid positive amount.");
+                return;
             }
+
+            String selectedCat = catCombo.getSelectionModel().getSelectedItem();
+            if (selectedCat == null || selectedCat.isBlank()) {
+                showError(errorLbl, "Please select a category.");
+                return;
+            }
+
+            int catId = appManager.getCategoryIdByName(selectedCat);
+            appManager.addExpense(amount, catId, "EXPENSE");
+
+            refresh();
+            if (historyView != null) historyView.refresh();
+            if (onDone != null) onDone.run();
         });
 
         page.getChildren().addAll(title, amtLabel, amtField, catLabel, catCombo, errorLbl, submitBtn);
@@ -393,12 +445,8 @@ public class DashboardView {
         }
 
         // We update the bar width after the scene has been laid out.
-        // Using a listener on the track's width ensures we always get a valid px value.
-        // The fill pane sits inside a StackPane (track); we bind its maxWidth to a fraction.
         double ratio = Math.min(spent / cycle.getTotalBudget(), 1.0);
 
-        // We can't know the track pixel width at build time, so we use a
-        // post-layout callback via the parent's widthProperty.
         StackPane track = (StackPane) budgetFillPane.getParent();
         if (track != null) {
             double trackW = track.getWidth();
@@ -406,7 +454,6 @@ public class DashboardView {
                 budgetFillPane.setMaxWidth(trackW * ratio);
                 budgetFillPane.setPrefWidth(trackW * ratio);
             } else {
-                // Hook into width once it's known
                 track.widthProperty().addListener((obs, o, n) -> {
                     double w = n.doubleValue() * ratio;
                     budgetFillPane.setMaxWidth(w);
@@ -472,190 +519,9 @@ public class DashboardView {
         return new VBox(5, header, track);
     }
 
-    // ════════════════════════════════════════════════════════════════════════
-    //  DIALOGS
-    // ════════════════════════════════════════════════════════════════════════
-
-    // ── Add Expense ───────────────────────────────────────────────────────────
-
-    private void showAddExpenseDialog() {
-        Stage dialog = createDialogStage("Add Expense");
-
-        // Amount
-        Label amtLabel = new Label("Amount (EGP)");
-        amtLabel.getStyleClass().add("field-label");
-        TextField amtField = new TextField();
-        amtField.setPromptText("0.00");
-        amtField.getStyleClass().add("text-input");
-        amtField.setMaxWidth(Double.MAX_VALUE);
-
-        // Category
-        Label catLabel = new Label("Category");
-        catLabel.getStyleClass().add("field-label");
-        ComboBox<String> catCombo = new ComboBox<>();
-        catCombo.getStyleClass().add("combo-input");
-        catCombo.setMaxWidth(Double.MAX_VALUE);
-        catCombo.setPromptText("Select category…");
-
-        List<String> cats = appManager.getCategories();
-        catCombo.getItems().addAll(cats);
-        if (!cats.isEmpty()) catCombo.getSelectionModel().selectFirst();
-
-        // Error
-        Label errorLbl = new Label();
-        errorLbl.getStyleClass().add("error-label");
-        errorLbl.setVisible(false);
-        errorLbl.setManaged(false);
-
-        // Submit
-        Button submitBtn = new Button("Add Expense");
-        submitBtn.getStyleClass().add("primary-button");
-        submitBtn.setMaxWidth(Double.MAX_VALUE);
-
-        submitBtn.setOnAction(e -> {
-            errorLbl.setVisible(false);
-            errorLbl.setManaged(false);
-
-            double amount;
-            try {
-                amount = Double.parseDouble(amtField.getText().trim());
-                if (amount <= 0) throw new NumberFormatException();
-            } catch (NumberFormatException ex) {
-                showError(errorLbl, "Please enter a valid positive amount.");
-                return;
-            }
-
-            String selectedCat = catCombo.getSelectionModel().getSelectedItem();
-            if (selectedCat == null || selectedCat.isBlank()) {
-                showError(errorLbl, "Please select a category.");
-                return;
-            }
-
-            int catId = appManager.getCategoryIdByName(selectedCat);
-            appManager.addExpense(amount, catId, "EXPENSE");
-
-            dialog.close();
-            refresh();
-            if (historyView != null) historyView.refresh();
-        });
-
-        VBox content = buildDialogContent("Add Expense", dialog,
-                amtLabel, amtField, catLabel, catCombo, errorLbl, submitBtn);
-
-        showDialog(dialog, content);
-    }
-
-    // ── Add Deposit ───────────────────────────────────────────────────────────
-
-    private void showAddDepositDialog() {
-        Stage dialog = createDialogStage("Add Deposit");
-
-        Label amtLabel = new Label("Amount (EGP)");
-        amtLabel.getStyleClass().add("field-label");
-        TextField amtField = new TextField();
-        amtField.setPromptText("0.00");
-        amtField.getStyleClass().add("text-input");
-        amtField.setMaxWidth(Double.MAX_VALUE);
-
-        Label errorLbl = new Label();
-        errorLbl.getStyleClass().add("error-label");
-        errorLbl.setVisible(false);
-        errorLbl.setManaged(false);
-
-        Button submitBtn = new Button("Add Deposit");
-        submitBtn.getStyleClass().add("success-button");
-        submitBtn.setMaxWidth(Double.MAX_VALUE);
-
-        submitBtn.setOnAction(e -> {
-            errorLbl.setVisible(false);
-            errorLbl.setManaged(false);
-
-            double amount;
-            try {
-                amount = Double.parseDouble(amtField.getText().trim());
-                if (amount <= 0) throw new NumberFormatException();
-            } catch (NumberFormatException ex) {
-                showError(errorLbl, "Please enter a valid positive amount.");
-                return;
-            }
-
-            appManager.addIncome(amount);
-
-            dialog.close();
-            refresh();
-            if (historyView != null) historyView.refresh();
-        });
-
-        VBox content = buildDialogContent("Add Deposit", dialog,
-                amtLabel, amtField, errorLbl, submitBtn);
-
-        showDialog(dialog, content);
-    }
-
-    // ── Dialog helpers ────────────────────────────────────────────────────────
-
-    private Stage createDialogStage(String title) {
-        Stage stage = new Stage();
-        stage.initModality(Modality.APPLICATION_MODAL);
-        stage.initStyle(StageStyle.TRANSPARENT);
-        stage.setTitle(title);
-        return stage;
-    }
-
-    /**
-     * Wraps dialog body nodes in a styled VBox with a header row (title + close button).
-     */
-    private VBox buildDialogContent(String titleText, Stage dialog, javafx.scene.Node... bodyNodes) {
-        // Header
-        Label titleLbl = new Label(titleText);
-        titleLbl.getStyleClass().add("dialog-title");
-
-        Button closeBtn = new Button("✕");
-        closeBtn.getStyleClass().add("dialog-close-btn");
-        closeBtn.setOnAction(e -> dialog.close());
-
-        HBox header = new HBox(titleLbl, closeBtn);
-        HBox.setHgrow(titleLbl, Priority.ALWAYS);
-        header.setAlignment(Pos.CENTER_LEFT);
-
-        VBox content = new VBox(14);
-        content.getStyleClass().add("dialog-content");
-        content.setPadding(new Insets(24));
-        content.setMinWidth(320);
-        content.setMaxWidth(360);
-
-        content.getChildren().add(header);
-
-        Separator sep = new Separator();
-        sep.setStyle("-fx-background-color: #1E2B45; -fx-pref-height: 1;");
-        content.getChildren().add(sep);
-
-        content.getChildren().addAll(bodyNodes);
-        return content;
-    }
-
-    private void showDialog(Stage dialog, VBox content) {
-        StackPane root = new StackPane(content);
-        root.setStyle("-fx-background-color: rgba(0,0,0,0.6);");
-        root.setPadding(new Insets(40));
-        root.setAlignment(Pos.CENTER);
-
-        Scene scene = new Scene(root);
-        scene.setFill(javafx.scene.paint.Color.TRANSPARENT);
-
-        // Inherit stylesheet from owner window if available
-        if (this.root.getScene() != null) {
-            scene.getStylesheets().addAll(this.root.getScene().getStylesheets());
-        }
-
-        dialog.setScene(scene);
-        dialog.showAndWait();
-    }
-
     private void showError(Label lbl, String msg) {
         lbl.setText(msg);
         lbl.setVisible(true);
         lbl.setManaged(true);
     }
 }
-
