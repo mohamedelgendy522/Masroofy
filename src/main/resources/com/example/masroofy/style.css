@@ -29,14 +29,6 @@
     -fx-pref-width: 6px;
 }
 
-}
-
-/* Hide scroll bar visually but keep it functional */
-.settings-scroll .scroll-bar:vertical {
-    -fx-background-color: #0F1422;
-    -fx-pref-width: 6px;
-}
-
 .settings-scroll .scroll-bar:vertical .thumb {
     -fx-background-color: #2E3854;
     -fx-background-radius: 3px;
