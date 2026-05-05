@@ -26,7 +26,6 @@ public class Cycle {
         this.start_date = start_date;
         this.end_date = end_date;
     }
-
     public Cycle(int user_id, double total_budget, LocalDate start_date, LocalDate end_date) {
         this.user_id = user_id;
         this.total_budget = total_budget;
