@@ -14,10 +14,10 @@ class AuthDAO {
     public boolean savePin(int userId, String pinHash) {
 
         try (
-             Connection conn = db.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(
-                     "INSERT INTO auth (user_id, pin_hash) VALUES (?, ?)"
-             )
+                Connection conn = db.getConnection();
+                PreparedStatement stmt = conn.prepareStatement(
+                        "INSERT INTO auth (user_id, pin_hash) VALUES (?, ?)"
+                )
         ){
             stmt.setInt(1,userId);
             stmt.setString(2,pinHash);
@@ -65,7 +65,7 @@ class AuthDAO {
                 PreparedStatement stmt = conn.prepareStatement(
                         "UPDATE auth SET pin_hash = ? WHERE user_id = ?"
                 )
-                ){
+        ){
             stmt.setString(1,newPinHash);
             stmt.setInt(2,userId);
 

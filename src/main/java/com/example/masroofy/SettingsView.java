@@ -1,18 +1,13 @@
 package com.example.masroofy;
-import java.util.Scanner;
+
+import javafx.geometry.Insets;
+import javafx.geometry.Pos;
+import javafx.scene.control.Button;
+import javafx.scene.control.Label;
+import javafx.scene.control.TextField;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.Region;
+import javafx.scene.layout.VBox;
 
 class SettingsView {
-
-    private AppManager appManager;
-    private Scanner scanner;
-
-    public SettingsView(AppManager appManager, Scanner scanner) {
-        this.appManager = appManager;
-        this.scanner = scanner;
-    }
-
-    // بترسم شاشة الـ settings كاملة
-    // not complete
-    public void render() {
-    }
 }
