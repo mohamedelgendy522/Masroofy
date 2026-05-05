@@ -10,7 +10,7 @@ public class Category {
         this.name = name;
         this.cycleId = cycleId;
     }
-    public int getid(){
+    public int getId(){
         return id;
     }
     public String getName() {
@@ -20,3 +20,4 @@ public class Category {
         return cycleId;
     }
 }
+

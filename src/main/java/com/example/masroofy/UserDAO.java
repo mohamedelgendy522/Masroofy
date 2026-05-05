@@ -15,7 +15,7 @@ class UserDAO {
 
     public int createUser(String name) {
 
-        String sql = "INSERT INTO users(name) VALUES(?)";
+        String sql = "INSERT INTO users(username) VALUES(?)";
 
         try (Connection conn = db.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
@@ -42,7 +42,7 @@ class UserDAO {
 
     public User getUserById(int id) {
 
-        String sql = "SELECT name FROM users WHERE id = ?";
+        String sql = "SELECT username FROM users WHERE id = ?";
 
         try (Connection conn = db.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
@@ -52,7 +52,7 @@ class UserDAO {
             try (ResultSet rs = stmt.executeQuery()) {
 
                 if (rs.next()) {
-                    String name = rs.getString("name");
+                    String name = rs.getString("username");
 
                     return new User(id, name);
                 }

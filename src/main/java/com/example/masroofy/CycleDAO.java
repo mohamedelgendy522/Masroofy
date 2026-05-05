@@ -1,5 +1,8 @@
 package com.example.masroofy;
 
+import java.sql.*;
+import java.time.LocalDate;
+
 class CycleDAO {
 
     private DataBaseManager db;
@@ -7,38 +10,147 @@ class CycleDAO {
     public CycleDAO(DataBaseManager db) {
         this.db = db;
     }
-
     // بتنشئ الـ cycle لأول مرة لليوزر
-    // not complete
     public void setupCycle(Cycle c) {
-    }
 
+        String sql = """
+        INSERT INTO cycles(user_id,total_budget,start_date,end_date)
+        VALUES(?,?,?,?)
+        """;
+
+        try (Connection conn = db.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setInt(1, c.getUserId());
+            stmt.setDouble(2, c.getTotalBudget());
+            stmt.setString(3, c.getStartDate().toString());
+            stmt.setString(4, c.getEndDate().toString());
+
+            stmt.executeUpdate();
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
     // بتجيب الـ cycle الخاصة بيوزر معين
-    // not complete
     public Cycle getCycleByUser(int userId) {
+
+        String sql = "SELECT * FROM cycles WHERE user_id=?";
+
+        try (Connection conn = db.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setInt(1, userId);
+
+            ResultSet rs = stmt.executeQuery();
+
+            if (rs.next()) {
+                return new Cycle(
+                        rs.getInt("id"),
+                        rs.getInt("user_id"),
+                        rs.getDouble("total_budget"),
+                        LocalDate.parse(rs.getString("start_date")),
+                        LocalDate.parse(rs.getString("end_date"))
+                );
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
         return null;
     }
 
     // بتجيب الـ cycle بالـ ID بتاعها
-    // not complete
     public Cycle getCycleById(int id) {
+
+        String sql = "SELECT * FROM cycles WHERE id = ?";
+
+        try (Connection conn = db.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setInt(1, id);
+
+            ResultSet rs = stmt.executeQuery();
+
+            if (rs.next()) {
+
+                return new Cycle(
+                        rs.getInt("id"),
+                        rs.getInt("user_id"),
+                        rs.getDouble("total_budget"),
+                        LocalDate.parse(rs.getString("start_date")),
+                        LocalDate.parse(rs.getString("end_date"))
+                );
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
         return null;
     }
-
     // بتحدث بيانات الـ cycle
-    // not complete
     public boolean updateCycle(Cycle c) {
+
+        String sql = """
+        UPDATE cycles
+        SET total_budget=?, start_date=?, end_date=?
+        WHERE id=?
+        """;
+
+        try (Connection conn = db.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setDouble(1, c.getTotalBudget());
+            stmt.setString(2, c.getStartDate().toString());
+            stmt.setString(3, c.getEndDate().toString());
+            stmt.setInt(4, c.getId());
+
+            return stmt.executeUpdate() > 0;
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
         return false;
     }
-
     // بتعمل reset للـ cycle — بتمسح الـ expenses والـ categories
     // وبترجع الـ budget والتواريخ لـ default
-    // not complete
     public void resetCycle(int userId) {
-    }
 
+        try (Connection conn = db.getConnection()) {
+
+            PreparedStatement stmt1 =
+                    conn.prepareStatement(
+                            "DELETE FROM expenses WHERE cycle_id=(SELECT id FROM cycles WHERE user_id=?)");
+
+            stmt1.setInt(1, userId);
+            stmt1.executeUpdate();
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
     // بتضيف مبلغ للـ budget بتاع الـ cycle
-    // not complete
     public void addToBudget(int cycleId, double amount) {
+
+        String sql = """
+        UPDATE cycles
+        SET total_budget = total_budget + ?
+        WHERE id=?
+        """;
+
+        try (Connection conn = db.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setDouble(1, amount);
+            stmt.setInt(2, cycleId);
+
+            stmt.executeUpdate();
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
     }
 }

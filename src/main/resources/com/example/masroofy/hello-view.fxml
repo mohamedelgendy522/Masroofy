@@ -1,15 +1,53 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.geometry.Insets?>
-<?import javafx.scene.control.Button?>
-<?import javafx.scene.control.Label?>
-<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
 
-<VBox spacing="20.0" xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/26" fx:controller="com.example.masroofy.HelloController">
+<VBox spacing="20" xmlns="http://javafx.com/javafx/26"
+      xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="com.example.masroofy.HelloController"
+      styleClass="root">
+
     <padding>
-        <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
+        <Insets top="20" right="20" bottom="20" left="20"/>
     </padding>
-    <Button onAction="#onHelloButtonClick" text="ليه" />
 
-    <Label fx:id="welcomeText" />
+    <!-- Title -->
+    <Label text="Settings" styleClass="title"/>
+
+    <!-- Change PIN -->
+    <VBox spacing="10" styleClass="card">
+        <Label text="Change PIN" styleClass="section-title"/>
+
+        <HBox spacing="10">
+            <TextField promptText="Old PIN"/>
+            <TextField promptText="New PIN"/>
+            <Button text="✔" styleClass="primary-btn"/>
+        </HBox>
+    </VBox>
+
+    <!-- Reset -->
+    <VBox spacing="10" styleClass="card">
+        <Label text="Reset Cycle" styleClass="section-title"/>
+        <Label text="Clear all expenses for current cycle."/>
+
+        <Button text="Reset Cycle" styleClass="danger-btn"/>
+    </VBox>
+
+    <!-- Categories -->
+    <VBox spacing="10" styleClass="card">
+        <Label text="Manage Categories" styleClass="section-title"/>
+
+        <HBox spacing="10">
+            <TextField promptText="Category name"/>
+            <Button text="Add" styleClass="primary-btn"/>
+        </HBox>
+
+        <HBox spacing="10">
+            <TextField promptText="Delete category"/>
+            <Button text="Delete" styleClass="ghost-btn"/>
+        </HBox>
+    </VBox>
+
 </VBox>
