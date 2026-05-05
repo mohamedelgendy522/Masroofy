@@ -8,6 +8,7 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
+import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
@@ -16,11 +17,12 @@ import javafx.stage.Stage;
 
 public class HelloApplication extends Application {
 
-    private static final int PHONE_WIDTH = 360;
-    private static final int PHONE_HEIGHT = 720;
+    private static final int PHONE_WIDTH = 480;
+    private static final int PHONE_HEIGHT = 800;
 
     private final DataBaseManager dbManager = new DataBaseManager();
     private AppManager appManager;
+    private BorderPane mainLayout;
 
     @Override
     public void start(Stage stage) {
@@ -29,7 +31,9 @@ public class HelloApplication extends Application {
 
         Scene scene = new Scene(new VBox(), PHONE_WIDTH, PHONE_HEIGHT);
         scene.getStylesheets().add(getClass().getResource("/com/example/masroofy/style.css").toExternalForm());
-        scene.setRoot(buildStatsRoot(scene, appManager));
+
+        // Starts directly into main layout with Dashboard to test the UI quickly
+        showMainApp(scene, appManager);
 
         stage.setTitle("Masroofy App");
         stage.setScene(scene);
@@ -37,15 +41,81 @@ public class HelloApplication extends Application {
         stage.show();
     }
 
+    private void showMainApp(Scene scene, AppManager appManager) {
+        mainLayout = new BorderPane();
+        mainLayout.getStyleClass().add("settings-root");
+
+        // Top Header
+        HBox topHeader = new HBox();
+        topHeader.getStyleClass().add("settings-card");
+        topHeader.setPadding(new Insets(15, 20, 15, 20));
+        topHeader.setAlignment(Pos.CENTER_LEFT);
+        // Remove lower corners rounding slightly or keep it standard card:
+        topHeader.setStyle("-fx-background-radius: 0 0 16 16; -fx-border-radius: 0 0 16 16; -fx-border-width: 0 0 1 0;");
+
+        String userName = appManager.getCurrentUserName();
+        if (userName == null || userName.isEmpty()) userName = "User";
+
+        Label welcomeLabel = new Label("Welcome, " + userName);
+        welcomeLabel.setStyle("-fx-text-fill: #F0F2FF; -fx-font-size: 18px; -fx-font-weight: bold;");
+
+        Region spacer = new Region();
+        HBox.setHgrow(spacer, Priority.ALWAYS);
+
+        Button settingsBtn = new Button("⚙");
+        settingsBtn.getStyleClass().add("icon-button");
+        settingsBtn.setStyle("-fx-font-size: 18px; -fx-padding: 0; -fx-min-width: 38px; -fx-min-height: 38px; -fx-pref-width: 38px; -fx-pref-height: 38px;");
+        settingsBtn.setOnAction(e -> {
+            mainLayout.setCenter(new SettingsView(appManager).getView());
+        });
+
+        topHeader.getChildren().addAll(welcomeLabel, spacer, settingsBtn);
+        mainLayout.setTop(topHeader);
+
+        HBox bottomNav = new HBox(5);
+        bottomNav.getStyleClass().add("settings-card");
+        bottomNav.setPadding(new Insets(10, 10, 10, 10));
+        bottomNav.setAlignment(Pos.CENTER);
+
+        Button dashBtn = createNavButton("Dashboard");
+        Button statsBtn = createNavButton("Stats");
+        Button histBtn = createNavButton("History");
+        Button addBtn = createNavButton("Add");
+
+        dashBtn.setOnAction(e -> mainLayout.setCenter(new DashboardView(appManager).getView()));
+        statsBtn.setOnAction(e -> mainLayout.setCenter(new StatsView(appManager, () -> mainLayout.setCenter(new HistoryView(appManager).getView())).getView()));
+        histBtn.setOnAction(e -> mainLayout.setCenter(new HistoryView(appManager).getView()));
+        addBtn.setOnAction(e -> {
+            DashboardView dv = new DashboardView(appManager);
+            dv.setHistoryView(new HistoryView(appManager));
+            mainLayout.setCenter(dv.getAddOptionsView(() -> mainLayout.setCenter(new DashboardView(appManager).getView())));
+        });
+
+        bottomNav.getChildren().addAll(dashBtn, statsBtn, histBtn, addBtn);
+
+        mainLayout.setBottom(bottomNav);
+        mainLayout.setCenter(new DashboardView(appManager).getView());
+
+        scene.setRoot(mainLayout);
+    }
+
+    private Button createNavButton(String text) {
+        Button btn = new Button(text);
+        btn.setStyle("-fx-background-color: transparent; -fx-text-fill: #7C3AED; -fx-font-size: 14px; -fx-font-weight: bold;");
+        btn.setMaxWidth(Double.MAX_VALUE);
+        HBox.setHgrow(btn, Priority.ALWAYS);
+        return btn;
+    }
+
     private VBox buildStatsRoot(Scene scene, AppManager appManager) {
         return new StatsView(appManager, () -> scene.setRoot(buildHistoryRoot(scene, appManager))).getView();
     }
 
     private VBox buildHistoryRoot(Scene scene, AppManager appManager) {
-        return new HistoryView(appManager, () -> scene.setRoot(buildStatsRoot(scene, appManager))).getView();
+        return new HistoryView(appManager).getView();
     }
 
-    private VBox buildLoginRoot(Scene scene, AppManager appManager) {
+    private VBox buildLoginRoot(Scene scene, AppManager appManager)     {
         VBox root = new VBox(16);
         root.getStyleClass().add("settings-root");
         root.setPadding(new Insets(40, 28, 40, 28));
@@ -127,7 +197,11 @@ public class HelloApplication extends Application {
 
             int userId = Integer.parseInt(userIdText);
             boolean loggedIn = appManager.login(userId, pinText);
-            statusLabel.setText(loggedIn ? "Logged in. ID: " + userId : "Invalid ID or PIN.");
+            if (loggedIn) {
+                showMainApp(scene, appManager);
+            } else {
+                statusLabel.setText("Invalid ID or PIN.");
+            }
         });
 
         card.getChildren().addAll(
@@ -277,8 +351,6 @@ public class HelloApplication extends Application {
                 card,
                 bottomSpacer
         );
-
         return root;
     }
-
 }

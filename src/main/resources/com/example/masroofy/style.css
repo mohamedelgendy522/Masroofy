@@ -1,5 +1,5 @@
 /* ═══════════════════════════════════════════════════
-   MASROOFY — Design System v2
+   MASROOFY — Design System
    Dark Navy + Purple Accent (Revolut-inspired)
    ═══════════════════════════════════════════════════ */
 
@@ -280,90 +280,530 @@
     -fx-background-color: #1A2530;
     -fx-text-fill: #38BDF8;
 }
+/* ═══════════════════════════════════════════════════
+   MASROOFY — History Screen CSS
+   ═══════════════════════════════════════════════════ */
 
+/* ── FILTER BAR BUTTONS ───────────────────────────── */
 
-/* ── 10. STATS VIEW ─────────────────────────────── */
-
-.stats-root {
-    -fx-background-color: #0B0F1A;
-}
-
-.stats-title {
-    -fx-text-fill: #F0F2FF;
-    -fx-font-size: 18px;
-    -fx-font-weight: bold;
-}
-
-.stats-card {
+/*
+  Pill-shaped toggle buttons above the transaction list.
+  Default = inactive (ghost look), active = filled purple.
+*/
+.filter-btn {
     -fx-background-color: #131929;
-    -fx-background-radius: 16;
+    -fx-text-fill: #5A6380;
     -fx-border-color: #1E2B45;
-    -fx-border-radius: 16;
     -fx-border-width: 1;
-    -fx-padding: 18;
-    -fx-effect: dropshadow(gaussian, rgba(124,58,237,0.08), 16, 0.15, 0, 2);
-}
-
-.stats-subtitle {
-    -fx-text-fill: #A6B0CF;
+    -fx-border-radius: 20;
+    -fx-background-radius: 20;
     -fx-font-size: 12px;
-}
-
-.stats-amount {
-    -fx-text-fill: #F0F2FF;
-    -fx-font-size: 26px;
     -fx-font-weight: bold;
+    -fx-padding: 7 18 7 18;
+    -fx-cursor: hand;
 }
 
-.stats-currency {
-    -fx-text-fill: #7C3AED;
+.filter-btn:hover {
+    -fx-background-color: #1A2240;
+    -fx-text-fill: #8892AA;
+    -fx-border-color: #2E3E70;
+}
+
+/* Active state — purple fill, white text */
+.filter-btn-active {
+    -fx-background-color: #7C3AED;
+    -fx-text-fill: white;
+    -fx-border-color: #7C3AED;
+}
+
+.filter-btn-active:hover {
+    -fx-background-color: #6D28D9;
+    -fx-border-color: #6D28D9;
+    -fx-text-fill: white;
+}
+
+
+/* ── DATE GROUP HEADER ────────────────────────────── */
+
+/*
+  Thin uppercase label between date groups.
+  e.g. "YESTERDAY, MAY 3"
+*/
+.history-date-header {
+    -fx-text-fill: #2E3854;
     -fx-font-size: 11px;
     -fx-font-weight: bold;
 }
 
-.stats-ghost-button {
-    -fx-background-color: transparent;
-    -fx-text-fill: #C4B5FD;
-    -fx-border-color: #2E3E70;
+
+/* ── TRANSACTION ROW ──────────────────────────────── */
+
+/*
+  Each transaction is an HBox with a card-like background.
+  Rounded corners + subtle border.
+*/
+.tx-row {
+    -fx-background-color: #131929;
+    -fx-background-radius: 12;
+    -fx-border-color: #1E2B45;
     -fx-border-width: 1;
-    -fx-border-radius: 10;
-    -fx-background-radius: 10;
-    -fx-padding: 9 14 9 14;
+    -fx-border-radius: 12;
     -fx-cursor: hand;
 }
 
-.stats-ghost-button:hover {
-    -fx-background-color: #1A2240;
-    -fx-border-color: #7C3AED;
+.tx-row:hover {
+    -fx-background-color: #171E32;
+    -fx-border-color: #2E3E70;
+    -fx-effect: dropshadow(gaussian, rgba(124,58,237,0.10), 12, 0.1, 0, 2);
 }
 
-.stats-section-title {
-    -fx-text-fill: #F0F2FF;
+
+/* ── TRANSACTION ICON BOX ─────────────────────────── */
+
+/*
+  Square emoji container on the left of each row.
+  Colour differs by transaction type.
+*/
+.tx-icon {
+    -fx-font-size: 18px;
+    -fx-min-width: 42;
+    -fx-min-height: 42;
+    -fx-pref-width: 42;
+    -fx-pref-height: 42;
+    -fx-background-radius: 11;
+    -fx-alignment: CENTER;
+}
+
+/* Expense icon: deep red tint */
+.tx-icon-expense {
+    -fx-background-color: #2A1520;
+}
+
+/* Deposit icon: deep green tint */
+.tx-icon-deposit {
+    -fx-background-color: #1A2C18;
+}
+
+
+/* ── TRANSACTION NAME & AMOUNT ────────────────────── */
+
+/* Primary name text (e.g. "Pizza Palace") */
+.tx-name {
+    -fx-text-fill: #DDE0F0;
     -fx-font-size: 13px;
     -fx-font-weight: bold;
 }
 
-.stats-row-label {
+/* Monospaced amount on the right */
+.tx-amount {
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+    -fx-alignment: CENTER_RIGHT;
+}
+
+.tx-amount-expense {
+    -fx-text-fill: #F87171;
+}
+
+.tx-amount-deposit {
+    -fx-text-fill: #4ADE80;
+}
+
+
+/* ── TRANSACTION TYPE BADGE ───────────────────────── */
+
+/*
+  Small uppercase pill on the right under the amount.
+  Mirrors the category tag style.
+*/
+.tx-badge {
+    -fx-font-size: 10px;
+    -fx-font-weight: bold;
+    -fx-background-radius: 5;
+    -fx-border-radius: 5;
+    -fx-padding: 2 8 2 8;
+    -fx-alignment: CENTER_RIGHT;
+}
+
+.tx-badge-expense {
+    -fx-background-color: #2A1520;
+    -fx-text-fill: #F87171;
+}
+
+.tx-badge-deposit {
+    -fx-background-color: #1A2C18;
+    -fx-text-fill: #4ADE80;
+}
+
+
+/* ── INCOME TAG ───────────────────────────────────── */
+
+/*
+  Extra category tag colour for "Income" deposits.
+  Mirrors existing tag-food / tag-health pattern.
+*/
+.tag-income {
+    -fx-background-color: #1A2C18;
+    -fx-text-fill: #4ADE80;
+}
+
+
+/* ── EMPTY STATE ──────────────────────────────────── */
+
+/* Large centred message when no transactions match the filter */
+.empty-state-title {
     -fx-text-fill: #DDE0F0;
+    -fx-font-size: 16px;
+    -fx-font-weight: bold;
+}
+
+.empty-state-sub {
+    -fx-text-fill: #5A6380;
+    -fx-font-size: 13px;
+    -fx-alignment: CENTER;
+    -fx-text-alignment: CENTER;
+    -fx-wrap-text: true;
+}
+
+
+/* ═══════════════════════════════════════════════════
+   Dashboard CSS
+   ═══════════════════════════════════════════════════ */
+
+/* ── BALANCE CARD ─────────────────────────────────── */
+
+/*
+  The premium gradient card at the top of the Dashboard.
+  Uses a layered radial glow to simulate the HTML ::before pseudo-element.
+*/
+.balance-card {
+    -fx-background-color:
+            radial-gradient(center 85% 15%, radius 60%, rgba(167,139,250,0.18) 0%, transparent 70%),
+            linear-gradient(to bottom right, #1A1040, #0F0A25, #12103A);
+    -fx-background-radius: 16;
+    -fx-border-color: #2E2260;
+    -fx-border-width: 1;
+    -fx-border-radius: 16;
+    -fx-padding: 24 22 24 22;
+    -fx-effect: dropshadow(gaussian, rgba(124,58,237,0.25), 24, 0.2, 0, 4);
+    -fx-max-width: infinity;
+}
+
+/* "TOTAL BALANCE — MAY 2026" */
+.balance-cycle-label {
+    -fx-text-fill: #7C5FC0;
+    -fx-font-size: 11px;
+    -fx-font-weight: bold;
+}
+
+/* Large EGP amount */
+.balance-amount {
+    -fx-text-fill: #EDE9FF;
+    -fx-font-size: 34px;
+    -fx-font-weight: bold;
+}
+
+/* "Cycle started …" sub-line */
+.balance-sub {
+    -fx-text-fill: #5A6380;
     -fx-font-size: 12px;
 }
 
-.stats-row-value {
-    -fx-text-fill: #C4B5FD;
+
+/* ── STAT TILES ───────────────────────────────────── */
+
+/* Shared label across both tiles */
+.stat-label {
+    -fx-text-fill: #5A6380;
+    -fx-font-size: 11px;
+    -fx-font-weight: bold;
+}
+
+/* The large number inside each tile */
+.stat-value {
+    -fx-font-size: 18px;
+    -fx-font-weight: bold;
+}
+
+/* Green = safe / under limit */
+.stat-safe {
+    -fx-text-fill: #4ADE80;
+}
+
+/* Yellow/amber = warning */
+.stat-warn {
+    -fx-text-fill: #FBBF24;
+}
+
+/* Red = over budget */
+.stat-danger {
+    -fx-text-fill: #F87171;
+}
+
+
+/* ── BUDGET PROGRESS BAR ──────────────────────────── */
+
+/* The "EGP X,XXX" spent amount label */
+.budget-spent {
+    -fx-text-fill: #A78BFA;
+    -fx-font-size: 18px;
+    -fx-font-weight: bold;
+}
+
+/* Grey track */
+.budget-track {
+    -fx-background-color: #1E2B45;
+    -fx-background-radius: 6;
+    -fx-pref-height: 8;
+    -fx-max-width: infinity;
+}
+
+/* Purple fill that slides over the track */
+.budget-fill {
+    -fx-background-color: linear-gradient(to right, #7C3AED, #A78BFA);
+    -fx-background-radius: 6;
+    -fx-pref-height: 8;
+}
+
+
+/* ── CATEGORY BAR ROWS ────────────────────────────── */
+
+/* Category name inside the spending breakdown */
+.cat-name {
+    -fx-text-fill: #CDD0E0;
+    -fx-font-size: 13px;
+}
+
+/* Right-aligned spend amount */
+.cat-amount {
+    -fx-text-fill: #8892AA;
+    -fx-font-size: 12px;
+    -fx-font-weight: bold;
+    -fx-min-width: 80;
+    -fx-alignment: CENTER_RIGHT;
+}
+
+/* Background track for each category bar */
+.cat-bar-track {
+    -fx-background-color: #1E2B45;
+    -fx-background-radius: 4;
+    -fx-pref-height: 5;
+    -fx-max-width: infinity;
+}
+
+/* The coloured fill (colour overridden inline per category) */
+.cat-bar-fill {
+    -fx-background-radius: 4;
+    -fx-pref-height: 5;
+}
+
+
+/* ── ACTION BUTTONS ───────────────────────────────── */
+
+/*
+  Success button — green variant.
+  Used for "Add Deposit" to distinguish from the purple "Add Expense".
+*/
+.success-button {
+    -fx-background-color: linear-gradient(to right, #16A34A, #15803D);
+    -fx-text-fill: white;
+    -fx-font-size: 13px;
+    -fx-font-weight: bold;
+    -fx-background-radius: 10;
+    -fx-border-radius: 10;
+    -fx-padding: 13 18 13 18;
+    -fx-cursor: hand;
+}
+
+.success-button:hover {
+    -fx-background-color: linear-gradient(to right, #22C55E, #16A34A);
+    -fx-effect: dropshadow(gaussian, rgba(34,197,94,0.4), 14, 0.25, 0, 2);
+}
+
+.success-button:pressed {
+    -fx-scale-x: 0.97;
+    -fx-scale-y: 0.97;
+    -fx-effect: none;
+}
+
+/* Make the primary action button a little taller on the dashboard too */
+.primary-button {
+    -fx-padding: 13 18 13 18;
+}
+
+
+/* ── DIALOG / POPUP ───────────────────────────────── */
+
+/*
+  The VBox that IS the dialog content (replaces a modal backdrop,
+  which JavaFX Stage handles natively with Modality.APPLICATION_MODAL).
+*/
+.dialog-content {
+    -fx-background-color: #131929;
+    -fx-background-radius: 16;
+    -fx-border-color: #1E2B45;
+    -fx-border-width: 1;
+    -fx-border-radius: 16;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.6), 32, 0.3, 0, 8);
+}
+
+/* "Add Expense" / "Add Deposit" dialog heading */
+.dialog-title {
+    -fx-text-fill: #F0F2FF;
+    -fx-font-size: 17px;
+    -fx-font-weight: bold;
+}
+
+/* Small ✕ button in the dialog header */
+.dialog-close-btn {
+    -fx-background-color: #1A2240;
+    -fx-text-fill: #5A6380;
+    -fx-font-size: 12px;
+    -fx-font-weight: bold;
+    -fx-background-radius: 8;
+    -fx-border-radius: 8;
+    -fx-border-color: #1E2B45;
+    -fx-border-width: 1;
+    -fx-pref-width: 28;
+    -fx-pref-height: 28;
+    -fx-cursor: hand;
+    -fx-padding: 0;
+}
+
+.dialog-close-btn:hover {
+    -fx-background-color: #2A1520;
+    -fx-text-fill: #F87171;
+    -fx-border-color: #4A1E2A;
+}
+
+
+/* ── DIALOG FORM FIELDS ───────────────────────────── */
+
+/* Smaller label above each input inside dialogs */
+.field-label {
+    -fx-text-fill: #8892AA;
     -fx-font-size: 12px;
     -fx-font-weight: bold;
 }
 
-.stats-dot {
-    -fx-min-width: 8;
-    -fx-min-height: 8;
-    -fx-max-width: 8;
-    -fx-max-height: 8;
-    -fx-background-radius: 6;
-    -fx-background-color: #7C3AED;
+/*
+  ComboBox styled to match .text-input.
+  The arrow button is also re-coloured.
+*/
+.combo-input {
+    -fx-background-color: #0B0F1A;
+    -fx-border-color: #1E2B45;
+    -fx-border-width: 1;
+    -fx-border-radius: 9;
+    -fx-background-radius: 9;
+    -fx-text-fill: #DDE0F0;
+    -fx-prompt-text-fill: #2E3854;
+    -fx-padding: 6 10 6 10;
+    -fx-font-size: 13px;
 }
 
-.stats-empty {
-    -fx-text-fill: #5A6380;
-    -fx-font-size: 12px;
+.combo-input:focused {
+    -fx-border-color: #7C3AED;
+    -fx-effect: dropshadow(gaussian, rgba(124,58,237,0.35), 12, 0.2, 0, 0);
 }
+
+.combo-input .arrow-button {
+    -fx-background-color: transparent;
+}
+
+.combo-input .arrow {
+    -fx-background-color: #5A6380;
+}
+
+/* Dropdown list panel */
+.combo-input .list-view {
+    -fx-background-color: #131929;
+    -fx-border-color: #1E2B45;
+    -fx-border-radius: 9;
+    -fx-background-radius: 9;
+}
+
+.combo-input .list-cell {
+    -fx-background-color: #131929;
+    -fx-text-fill: #DDE0F0;
+    -fx-padding: 8 14 8 14;
+    -fx-font-size: 13px;
+}
+
+.combo-input .list-cell:hover {
+    -fx-background-color: #1E2B45;
+}
+
+.combo-input .list-cell:selected {
+    -fx-background-color: #2E1F6E;
+    -fx-text-fill: #A78BFA;
+}
+
+
+/* ── VALIDATION ERROR ─────────────────────────────── */
+
+/* Red error text shown below form fields on bad input */
+.error-label {
+    -fx-text-fill: #F87171;
+    -fx-font-size: 12px;
+    -fx-font-weight: bold;
+    -fx-padding: 0 0 4 0;
+}
+
+/* ── DATE PICKER ──────────────────────────────────── */
+
+.date-picker {
+    -fx-background-color: transparent;
+}
+
+.date-picker .text-field {
+    -fx-background-color: #0B0F1A;
+    -fx-border-color: #1E2B45;
+    -fx-border-width: 1;
+    -fx-border-radius: 9;
+    -fx-background-radius: 9;
+    -fx-text-fill: #DDE0F0;
+    -fx-padding: 6 10 6 10;
+    -fx-font-size: 13px;
+}
+
+.date-picker:focused .text-field {
+    -fx-border-color: #7C3AED;
+    -fx-effect: dropshadow(gaussian, rgba(124,58,237,0.35), 12, 0.2, 0, 0);
+}
+
+.date-picker .arrow-button {
+    -fx-background-color: transparent;
+}
+
+.date-picker .arrow-button .arrow {
+    -fx-background-color: #5A6380;
+}
+
+.date-picker-popup {
+    -fx-background-color: #131929;
+    -fx-border-color: #1E2B45;
+}
+
+.date-picker-popup .month-year-pane {
+    -fx-background-color: #1A2240;
+}
+
+.date-picker-popup .label {
+    -fx-text-fill: #DDE0F0;
+}
+
+.date-picker-popup .day-cell {
+    -fx-text-fill: #DDE0F0;
+    -fx-background-color: #131929;
+}
+
+.date-picker-popup .day-cell:hover {
+    -fx-background-color: #1E2B45;
+}
+
+.date-picker-popup .day-cell:selected {
+    -fx-background-color: #7C3AED;
+    -fx-text-fill: white;
+}
+

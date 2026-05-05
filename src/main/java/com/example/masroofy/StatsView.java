@@ -13,6 +13,7 @@ import javafx.scene.control.Label;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
+import javafx.scene.control.ScrollPane;
 
 class StatsView {
 
@@ -25,29 +26,36 @@ class StatsView {
     }
 
     VBox getView() {
-        VBox root = new VBox(16);
-        root.getStyleClass().add("stats-root");
-        root.setPadding(new Insets(24, 20, 24, 20));
+        VBox root = new VBox();
+        root.getStyleClass().add("settings-root");
+
+        ScrollPane scroll = new ScrollPane();
+        scroll.setFitToWidth(true);
+        scroll.getStyleClass().add("settings-scroll");
+        scroll.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
+
+        VBox container = new VBox(20);
+        container.setPadding(new Insets(28, 24, 28, 24));
 
         Label title = new Label("Weekly Stats");
-        title.getStyleClass().add("stats-title");
+        title.getStyleClass().add("page-title");
 
         VBox weeklyCard = new VBox(10);
-        weeklyCard.getStyleClass().add("stats-card");
+        weeklyCard.getStyleClass().add("settings-card");
         weeklyCard.setAlignment(Pos.CENTER);
 
         Label totalLabel = new Label("Total Spent This Week");
-        totalLabel.getStyleClass().add("stats-subtitle");
+        totalLabel.getStyleClass().add("card-title");
 
         double weeklyTotal = appManager.getWeeklyTotalSpent();
         Label amountLabel = new Label(formatAmount(weeklyTotal));
-        amountLabel.getStyleClass().add("stats-amount");
+        amountLabel.setStyle("-fx-text-fill: #EDE9FF; -fx-font-size: 34px; -fx-font-weight: bold;");
 
         Label currencyLabel = new Label("EGP");
-        currencyLabel.getStyleClass().add("stats-currency");
+        currencyLabel.getStyleClass().add("section-help");
 
         Button historyButton = new Button("View History");
-        historyButton.getStyleClass().add("stats-ghost-button");
+        historyButton.getStyleClass().add("ghost-button");
         historyButton.setMaxWidth(Double.MAX_VALUE);
         historyButton.setOnAction(event -> {
             if (onViewHistory != null) {
@@ -58,17 +66,20 @@ class StatsView {
         weeklyCard.getChildren().addAll(totalLabel, amountLabel, currencyLabel, historyButton);
 
         VBox breakdownCard = new VBox(12);
-        breakdownCard.getStyleClass().add("stats-card");
+        breakdownCard.getStyleClass().add("settings-card");
 
-        Label breakdownTitle = new Label("Spending by Category");
-        breakdownTitle.getStyleClass().add("stats-section-title");
+        Label breakdownTitle = new Label("SPENDING BY CATEGORY");
+        breakdownTitle.getStyleClass().add("card-title");
 
         VBox rows = new VBox(10);
         rows.getChildren().addAll(buildCategoryRows());
 
         breakdownCard.getChildren().addAll(breakdownTitle, rows);
 
-        root.getChildren().addAll(title, weeklyCard, breakdownCard);
+        container.getChildren().addAll(title, weeklyCard, breakdownCard);
+        scroll.setContent(container);
+        root.getChildren().add(scroll);
+
         return root;
     }
 
@@ -79,31 +90,40 @@ class StatsView {
         double total = totals.values().stream().mapToDouble(Double::doubleValue).sum();
         if (total <= 0) {
             Label empty = new Label("No data yet");
-            empty.getStyleClass().add("stats-empty");
+            empty.getStyleClass().add("section-help");
             rows.add(empty);
             return rows;
         }
 
+        int[] colorIndex = {0};
+        String[] colors = {"#7C3AED", "#4ADE80", "#38BDF8", "#FBBF24", "#F87171", "#C084FC", "#FB923C", "#818CF8"};
+
         totals.entrySet().stream()
                 .sorted(Comparator.comparingDouble((Map.Entry<String, Double> e) -> e.getValue()).reversed())
-                .forEach(entry -> rows.add(buildCategoryRow(entry.getKey(), entry.getValue(), total)));
+                .forEach(entry -> {
+                    String color = colors[colorIndex[0] % colors.length];
+                    colorIndex[0]++;
+                    rows.add(buildCategoryRow(entry.getKey(), entry.getValue(), total, color));
+                });
 
         return rows;
     }
 
-    private HBox buildCategoryRow(String name, double amount, double total) {
+    private HBox buildCategoryRow(String name, double amount, double total, String color) {
         HBox row = new HBox(10);
         row.setAlignment(Pos.CENTER_LEFT);
 
         Region dot = new Region();
-        dot.getStyleClass().add("stats-dot");
+        dot.setMinSize(10, 10);
+        dot.setMaxSize(10, 10);
+        dot.setStyle("-fx-background-color: " + color + "; -fx-background-radius: 50%;");
 
         Label nameLabel = new Label(name);
-        nameLabel.getStyleClass().add("stats-row-label");
+        nameLabel.getStyleClass().add("tx-name");
 
         double percent = total == 0 ? 0 : (amount / total) * 100.0;
         Label percentLabel = new Label(String.format(Locale.US, "%.0f%%", percent));
-        percentLabel.getStyleClass().add("stats-row-value");
+        percentLabel.getStyleClass().add("tx-amount");
 
         Region spacer = new Region();
         HBox.setHgrow(spacer, javafx.scene.layout.Priority.ALWAYS);
