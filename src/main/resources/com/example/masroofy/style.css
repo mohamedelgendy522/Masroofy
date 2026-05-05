@@ -1,5 +1,5 @@
 /* ═══════════════════════════════════════════════════
-   MASROOFY — Design System v2
+   MASROOFY — Design System
    Dark Navy + Purple Accent (Revolut-inspired)
    ═══════════════════════════════════════════════════ */
 
@@ -21,6 +21,14 @@
 
 .settings-scroll > .viewport {
     -fx-background-color: #0B0F1A;
+}
+
+/* Hide scroll bar visually but keep it functional */
+.settings-scroll .scroll-bar:vertical {
+    -fx-background-color: #0F1422;
+    -fx-pref-width: 6px;
+}
+
 }
 
 /* Hide scroll bar visually but keep it functional */
@@ -366,4 +374,208 @@
 .stats-empty {
     -fx-text-fill: #5A6380;
     -fx-font-size: 12px;
+}
+
+.tag-transport {
+    -fx-background-color: #1A2038;
+    -fx-text-fill: #818CF8;
+}
+
+.tag-health {
+    -fx-background-color: #2A1A1A;
+    -fx-text-fill: #F87171;
+}
+
+.tag-ent {
+    -fx-background-color: #261A30;
+    -fx-text-fill: #C084FC;
+}
+
+.tag-util {
+    -fx-background-color: #1A2530;
+    -fx-text-fill: #38BDF8;
+}
+/* ═══════════════════════════════════════════════════
+   MASROOFY — History Screen CSS
+   ═══════════════════════════════════════════════════ */
+
+/* ── FILTER BAR BUTTONS ───────────────────────────── */
+
+/*
+  Pill-shaped toggle buttons above the transaction list.
+  Default = inactive (ghost look), active = filled purple.
+*/
+.filter-btn {
+    -fx-background-color: #131929;
+    -fx-text-fill: #5A6380;
+    -fx-border-color: #1E2B45;
+    -fx-border-width: 1;
+    -fx-border-radius: 20;
+    -fx-background-radius: 20;
+    -fx-font-size: 12px;
+    -fx-font-weight: bold;
+    -fx-padding: 7 18 7 18;
+    -fx-cursor: hand;
+}
+
+.filter-btn:hover {
+    -fx-background-color: #1A2240;
+    -fx-text-fill: #8892AA;
+    -fx-border-color: #2E3E70;
+}
+
+/* Active state — purple fill, white text */
+.filter-btn-active {
+    -fx-background-color: #7C3AED;
+    -fx-text-fill: white;
+    -fx-border-color: #7C3AED;
+}
+
+.filter-btn-active:hover {
+    -fx-background-color: #6D28D9;
+    -fx-border-color: #6D28D9;
+    -fx-text-fill: white;
+}
+
+
+/* ── DATE GROUP HEADER ────────────────────────────── */
+
+/*
+  Thin uppercase label between date groups.
+  e.g. "YESTERDAY, MAY 3"
+*/
+.history-date-header {
+    -fx-text-fill: #2E3854;
+    -fx-font-size: 11px;
+    -fx-font-weight: bold;
+}
+
+
+/* ── TRANSACTION ROW ──────────────────────────────── */
+
+/*
+  Each transaction is an HBox with a card-like background.
+  Rounded corners + subtle border.
+*/
+.tx-row {
+    -fx-background-color: #131929;
+    -fx-background-radius: 12;
+    -fx-border-color: #1E2B45;
+    -fx-border-width: 1;
+    -fx-border-radius: 12;
+    -fx-cursor: hand;
+}
+
+.tx-row:hover {
+    -fx-background-color: #171E32;
+    -fx-border-color: #2E3E70;
+    -fx-effect: dropshadow(gaussian, rgba(124,58,237,0.10), 12, 0.1, 0, 2);
+}
+
+
+/* ── TRANSACTION ICON BOX ─────────────────────────── */
+
+/*
+  Square emoji container on the left of each row.
+  Colour differs by transaction type.
+*/
+.tx-icon {
+    -fx-font-size: 18px;
+    -fx-min-width: 42;
+    -fx-min-height: 42;
+    -fx-pref-width: 42;
+    -fx-pref-height: 42;
+    -fx-background-radius: 11;
+    -fx-alignment: CENTER;
+}
+
+/* Expense icon: deep red tint */
+.tx-icon-expense {
+    -fx-background-color: #2A1520;
+}
+
+/* Deposit icon: deep green tint */
+.tx-icon-deposit {
+    -fx-background-color: #1A2C18;
+}
+
+
+/* ── TRANSACTION NAME & AMOUNT ────────────────────── */
+
+/* Primary name text (e.g. "Pizza Palace") */
+.tx-name {
+    -fx-text-fill: #DDE0F0;
+    -fx-font-size: 13px;
+    -fx-font-weight: bold;
+}
+
+/* Monospaced amount on the right */
+.tx-amount {
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+    -fx-alignment: CENTER_RIGHT;
+}
+
+.tx-amount-expense {
+    -fx-text-fill: #F87171;
+}
+
+.tx-amount-deposit {
+    -fx-text-fill: #4ADE80;
+}
+
+
+/* ── TRANSACTION TYPE BADGE ───────────────────────── */
+
+/*
+  Small uppercase pill on the right under the amount.
+  Mirrors the category tag style.
+*/
+.tx-badge {
+    -fx-font-size: 10px;
+    -fx-font-weight: bold;
+    -fx-background-radius: 5;
+    -fx-border-radius: 5;
+    -fx-padding: 2 8 2 8;
+    -fx-alignment: CENTER_RIGHT;
+}
+
+.tx-badge-expense {
+    -fx-background-color: #2A1520;
+    -fx-text-fill: #F87171;
+}
+
+.tx-badge-deposit {
+    -fx-background-color: #1A2C18;
+    -fx-text-fill: #4ADE80;
+}
+
+
+/* ── INCOME TAG ───────────────────────────────────── */
+
+/*
+  Extra category tag colour for "Income" deposits.
+  Mirrors existing tag-food / tag-health pattern.
+*/
+.tag-income {
+    -fx-background-color: #1A2C18;
+    -fx-text-fill: #4ADE80;
+}
+
+
+/* ── EMPTY STATE ──────────────────────────────────── */
+
+/* Large centred message when no transactions match the filter */
+.empty-state-title {
+    -fx-text-fill: #DDE0F0;
+    -fx-font-size: 16px;
+    -fx-font-weight: bold;
+}
+
+.empty-state-sub {
+    -fx-text-fill: #5A6380;
+    -fx-font-size: 13px;
+    -fx-alignment: CENTER;
+    -fx-text-alignment: CENTER;
+    -fx-wrap-text: true;
 }

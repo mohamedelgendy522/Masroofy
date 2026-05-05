@@ -4,14 +4,8 @@ import javafx.application.Application;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.control.PasswordField;
-import javafx.scene.control.TextField;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.Priority;
-import javafx.scene.layout.Region;
-import javafx.scene.layout.VBox;
+import javafx.scene.control.Tab;
+import javafx.scene.control.TabPane;
 import javafx.stage.Stage;
 
 public class HelloApplication extends Application {
@@ -24,6 +18,26 @@ public class HelloApplication extends Application {
 
     @Override
     public void start(Stage stage) {
+        AppManager appManager = new AppManager(new DataBaseManager());
+
+        // Tabs
+
+        Tab historyTab   = new Tab("History",   new HistoryView(appManager).getView());
+        historyTab.setClosable(false);
+
+        Tab settingsTab = new Tab("Settings", new SettingsView().getView());
+        settingsTab.setClosable(false);
+
+        TabPane tabPane = new TabPane( historyTab ,settingsTab );
+
+
+        Scene scene = new Scene(tabPane, PHONE_WIDTH, PHONE_HEIGHT);
+
+        scene.getStylesheets().add(
+                getClass().getResource("/com/example/masroofy/style.css").toExternalForm()
+        );
+
+        stage.setTitle("Masroofy");
         dbManager.initDB();
         appManager = new AppManager(dbManager);
 
@@ -36,6 +50,7 @@ public class HelloApplication extends Application {
         stage.setResizable(false);
         stage.show();
     }
+}
 
     private VBox buildStatsRoot(Scene scene, AppManager appManager) {
         return new StatsView(appManager, () -> scene.setRoot(buildHistoryRoot(scene, appManager))).getView();
