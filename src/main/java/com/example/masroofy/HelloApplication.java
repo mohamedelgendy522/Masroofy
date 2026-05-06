@@ -33,7 +33,6 @@ public class HelloApplication extends Application {
         Scene scene = new Scene(new VBox(), PHONE_WIDTH, PHONE_HEIGHT);
         scene.getStylesheets().add(getClass().getResource("/com/example/masroofy/style.css").toExternalForm());
 
-        // ✅ التعديل الأول: أول ما يرن، نفتح شاشة اللوجين
         scene.setRoot(buildLoginRoot(scene, appManager));
 
         stage.setTitle("Masroofy App");
@@ -66,7 +65,9 @@ public class HelloApplication extends Application {
         settingsBtn.getStyleClass().add("icon-button");
         settingsBtn.setStyle("-fx-font-size: 18px; -fx-padding: 0; -fx-min-width: 38px; -fx-min-height: 38px; -fx-pref-width: 38px; -fx-pref-height: 38px;");
         settingsBtn.setOnAction(e -> {
-            mainLayout.setCenter(new SettingsView(appManager).getView());
+            mainLayout.setCenter(new SettingsView(appManager, () -> {
+                scene.setRoot(buildLoginRoot(scene, appManager));
+            }).getView());
         });
 
         topHeader.getChildren().addAll(welcomeLabel, spacer, settingsBtn);
@@ -318,7 +319,6 @@ public class HelloApplication extends Application {
             if (userId == -1) {
                 statusLabel.setText("Registration failed.");
             } else {
-                // ✅ التعديل التالت: يطلع رسالة فيها الـ ID بتاعه عشان ميضعش، وبعدين يرجعه لصفحة اللوجين
                 Alert alert = new Alert(Alert.AlertType.INFORMATION);
                 alert.setTitle("Registration Successful");
                 alert.setHeaderText("Welcome, " + name + "!");

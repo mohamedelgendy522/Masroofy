@@ -225,6 +225,19 @@ class ExpenseDAO {
         return false;
     }
 
+    public boolean deleteAllExpensesByUserId(int userId) {
+        String sql = "DELETE FROM expenses WHERE cycle_id IN (SELECT id FROM cycles WHERE user_id = ?)";
+        try (Connection conn = db.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setInt(1, userId);
+            stmt.executeUpdate();
+            return true;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
     public double getTotalByCycle(int cycleId) {
 
         String sql = "SELECT SUM(amount) AS total FROM expenses WHERE cycle_id = ? AND type = 'EXPENSE'";

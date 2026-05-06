@@ -67,12 +67,26 @@ class CategoryDAO {
     public boolean deleteAllCategories(int cycleId) {
         String sql = "DELETE FROM categories WHERE cycle_id = ?";
         try (Connection conn = db.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
-            ps.setInt(1, cycleId);
-            ps.executeUpdate();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setInt(1, cycleId);
+            return stmt.executeUpdate() > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    public boolean deleteAllCategoriesByUserId(int userId) {
+        String sql = "DELETE FROM categories WHERE cycle_id IN (SELECT id FROM cycles WHERE user_id = ?)";
+        try (Connection conn = db.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setInt(1, userId);
+            stmt.executeUpdate();
             return true;
-        } catch (SQLException e) { e.printStackTrace(); }
-        return false;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
     }
 
     // بتتحقق إن الـ category مش موجودة قبل ما تضيفها

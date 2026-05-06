@@ -10,6 +10,12 @@ import javafx.stage.Stage;
 class SettingsView {
 
     private AppManager appManager;
+    private Runnable onLogout; // Added onLogout
+
+    public SettingsView(AppManager appManager, Runnable onLogout) {
+        this.appManager = appManager;
+        this.onLogout = onLogout;
+    }
 
     public SettingsView(AppManager appManager) {
         this.appManager = appManager;
@@ -162,42 +168,61 @@ class SettingsView {
                 currentCatLabel, tagsPane, catMsg
         );
 
-        // Card 4: Reset Database
+        // Card 4: Delete Account
         VBox resetDbCard = createCard();
         resetDbCard.getStyleClass().add("danger-card");
 
-        Label resetDbTitle = createCardTitle("RESET DATABASE");
+        Label resetDbTitle = createCardTitle("DELETE ACCOUNT");
 
-        Label resetDbDesc = new Label("Wipes everything — current cycle, all expenses, categories, and your PIN.");
+        Label resetDbDesc = new Label("Wipes your entire account — cycles, expenses, categories, and your user data.");
         resetDbDesc.getStyleClass().add("section-help");
 
-        Button resetDbBtn = new Button("Reset Database");
+        Button resetDbBtn = new Button("Delete Account");
         resetDbBtn.getStyleClass().add("danger-button");
 
         Label resetDbMsg = new Label();
 
         resetDbBtn.setOnAction(e -> {
             Alert confirm = new Alert(Alert.AlertType.CONFIRMATION,
-                    "This will delete EVERYTHING including your PIN.\nThis cannot be undone.",
+                    "This will delete EVERYTHING including your account.\nThis cannot be undone.",
                     ButtonType.YES, ButtonType.NO);
-            confirm.setTitle("Reset Database");
+            confirm.setTitle("Delete Account");
             confirm.showAndWait().ifPresent(response -> {
                 if (response == ButtonType.YES) {
+                    appManager.deleteCurrentAccount();
                     resetDbMsg.getStyleClass().setAll("msg-success");
-                    resetDbMsg.setText("✓ Database reset. Please restart the app.");
+                    resetDbMsg.setText("✓ Account deleted.");
                     resetDbBtn.setDisable(true);
+                    if (onLogout != null) {
+                        onLogout.run();
+                    }
                 }
             });
         });
 
         resetDbCard.getChildren().addAll(resetDbTitle, resetDbDesc, resetDbBtn, resetDbMsg);
 
+        // Card 5: Logout
+        VBox logoutCard = createCard();
+        Button logoutBtn = new Button("Logout");
+        logoutBtn.getStyleClass().add("primary-button");
+        logoutBtn.setMaxWidth(Double.MAX_VALUE);
+
+        logoutBtn.setOnAction(e -> {
+            appManager.logout();
+            if (onLogout != null) {
+                onLogout.run();
+            }
+        });
+        logoutCard.getChildren().add(logoutBtn);
+
         VBox content = new VBox(16,
                 pageTitle,
                 changePinCard,
                 resetCard,
                 categoryCard,
-                resetDbCard
+                resetDbCard,
+                logoutCard
         );
         content.setPadding(new Insets(28, 24, 28, 24));
         content.setAlignment(Pos.TOP_CENTER);
