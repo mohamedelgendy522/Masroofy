@@ -7,20 +7,39 @@ import javafx.scene.control.*;
 import javafx.scene.layout.*;
 import javafx.stage.Stage;
 
+/**
+ * View class managing user settings configuration.
+ */
 class SettingsView {
 
     private AppManager appManager;
     private Runnable onLogout; // Added onLogout
 
+    /**
+     * Constructs a SettingsView with a specified application manager and logout handler.
+     *
+     * @param appManager Central logic integration point.
+     * @param onLogout   Functional callback referencing external logout handling.
+     */
     public SettingsView(AppManager appManager, Runnable onLogout) {
         this.appManager = appManager;
         this.onLogout = onLogout;
     }
 
+    /**
+     * Constructs a SettingsView without handling an explicit callback hook.
+     *
+     * @param appManager The central application manager.
+     */
     public SettingsView(AppManager appManager) {
         this.appManager = appManager;
     }
 
+    /**
+     * Constructs the UI layout rendering user settings components.
+     *
+     * @return The complete configuration view root VBox instance.
+     */
     public VBox getView() {
         VBox root = new VBox();
         root.getStyleClass().add("settings-root");
@@ -43,9 +62,9 @@ class SettingsView {
         confirmBtn.getStyleClass().add("icon-button");
         confirmBtn.setPrefHeight(40);
 
-        // ✅ الحل الجذري: نعمل Label فاضي ونحطه مع الزرار في VBox عشان يبقوا نفس الهيكل
-        Label dummyLabel = createFieldLabel(" "); // مسافة فاضية عشان تاخد نفس الارتفاع
-        VBox btnBox = new VBox(6, dummyLabel, confirmBtn); // نفس الـ spacing بتاع الخانات
+
+        Label dummyLabel = createFieldLabel(" ");
+        VBox btnBox = new VBox(6, dummyLabel, confirmBtn);
 
         // Feedback label shown after the user tries to change PIN
         Label pinMsg = new Label();
@@ -58,10 +77,10 @@ class SettingsView {
             newPinField.clear();
         });
 
-        // ✅ حطينا الـ btnBox هنا بدل الزرار لوحده
+
         HBox pinRow = new HBox(10, oldPinBox, newPinBox, btnBox);
 
-        // المحاذاة هتبقى مظبوطة دلوقتي لأن الهياكل كلها بقت متطابقة
+
         pinRow.setAlignment(Pos.CENTER_LEFT);
 
         pinRow.getStyleClass().add("form-row");
@@ -241,24 +260,47 @@ class SettingsView {
         return root;
     }
 
+    /**
+     * Instantiates a functional inner-card grouping box view.
+     *
+     * @return A styled container VBox.
+     */
     private VBox createCard() {
         VBox card = new VBox(12);
         card.getStyleClass().add("settings-card");
         return card;
     }
 
+    /**
+     * Assembles standardized card headers logic formats.
+     *
+     * @param text Informational text binding mapping.
+     * @return Instantiated structural label block.
+     */
     private Label createCardTitle(String text) {
         Label label = new Label(text);
         label.getStyleClass().add("card-title");
         return label;
     }
 
+    /**
+     * Builds uniform form label identifiers strings mapped contexts.
+     *
+     * @param text Output designation label sequence strings.
+     * @return Output interface block references mapping string logic layouts.
+     */
     private Label createFieldLabel(String text) {
         Label label = new Label(text);
         label.getStyleClass().add("tags-label");
         return label;
     }
 
+    /**
+     * Generates uniformly constructed hidden format string fields references handling masking formatting components blocks interfaces inputs configurations properties logic setups structures.
+     *
+     * @param placeholder Helper label.
+     * @return Structured formatted inputs block definitions interfaces models attributes constraints.
+     */
     private PasswordField createPasswordField(String placeholder) {
         PasswordField field = new PasswordField();
         field.setPromptText(placeholder);
@@ -266,6 +308,12 @@ class SettingsView {
         return field;
     }
 
+    /**
+     * Initiates mapping interfaces rendering formats textual.
+     *
+     * @param placeholder Instantiation texts.
+     * @return Field references attributes formats contexts settings layouts schemas inputs attributes specifications schemas bindings models outputs layouts templates formatting instances.
+     */
     private TextField createTextField(String placeholder) {
         TextField field = new TextField();
         field.setPromptText(placeholder);
@@ -273,6 +321,12 @@ class SettingsView {
         return field;
     }
 
+    /**
+     * Resolves matching dynamic text logic definitions string templates schemas bindings variables formats settings formatting arrays layouts tags contexts representations lists lists outputs attributes references.
+     *
+     * @param name Key lookup mapping parameters constraints templates instances formats representations logic constraints mappings constants.
+     * @return Resolved output mappings attributes constraints mapping variables parameters setups formatting textual variables representations values lists objects textual constants.
+     */
     private String resolveTagClass(String name) {
         return switch (name.toLowerCase()) {
             case "food"          -> "tag-food";

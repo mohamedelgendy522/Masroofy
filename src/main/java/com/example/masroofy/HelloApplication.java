@@ -16,6 +16,9 @@ import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
+/**
+ * The main application class for Masroofy that sets up JavaFX routing and layout.
+ */
 public class HelloApplication extends Application {
 
     private static final int PHONE_WIDTH = 480;
@@ -25,6 +28,11 @@ public class HelloApplication extends Application {
     private AppManager appManager;
     private BorderPane mainLayout;
 
+    /**
+     * Initializes and starts the JavaFX primary stage.
+     *
+     * @param stage The primary application stage.
+     */
     @Override
     public void start(Stage stage) {
         dbManager.initDB();
@@ -41,6 +49,12 @@ public class HelloApplication extends Application {
         stage.show();
     }
 
+    /**
+     * Transitions the scene root to the main application interface.
+     *
+     * @param scene      The active application scene.
+     * @param appManager The main application manager.
+     */
     private void showMainApp(Scene scene, AppManager appManager) {
         mainLayout = new BorderPane();
         mainLayout.getStyleClass().add("settings-root");
@@ -100,6 +114,12 @@ public class HelloApplication extends Application {
         scene.setRoot(mainLayout);
     }
 
+    /**
+     * Creates a standard styled navigation button.
+     *
+     * @param text The display text of the button.
+     * @return The styled Button component.
+     */
     private Button createNavButton(String text) {
         Button btn = new Button(text);
         btn.setStyle("-fx-background-color: transparent; -fx-text-fill: #7C3AED; -fx-font-size: 14px; -fx-font-weight: bold;");
@@ -108,6 +128,13 @@ public class HelloApplication extends Application {
         return btn;
     }
 
+    /**
+     * Builds and returns the login layout root.
+     *
+     * @param scene      The application scene context.
+     * @param appManager The central application manager.
+     * @return A VBox representing the login view.
+     */
     private VBox buildLoginRoot(Scene scene, AppManager appManager)     {
         VBox root = new VBox(16);
         root.getStyleClass().add("settings-root");
@@ -191,7 +218,7 @@ public class HelloApplication extends Application {
             int userId = Integer.parseInt(userIdText);
             boolean loggedIn = appManager.login(userId, pinText);
             if (loggedIn) {
-                // ✅ التعديل التاني: لو أول مرة يفتح ومفيش Cycle هنوديه يضيف Deposit، ولو فيه Cycle يدخل Dashboard علطول
+
                 if (appManager.getCurrentCycle() == null) {
                     DashboardView dv = new DashboardView(appManager);
                     scene.setRoot(dv.getInitialDepositView(() -> showMainApp(scene, appManager)));
@@ -227,6 +254,13 @@ public class HelloApplication extends Application {
         return root;
     }
 
+    /**
+     * Builds and returns the registration layout root.
+     *
+     * @param scene      The application scene context.
+     * @param appManager The central application manager.
+     * @return A VBox representing the register view.
+     */
     private VBox buildRegisterRoot(Scene scene, AppManager appManager) {
         VBox root = new VBox(16);
         root.getStyleClass().add("settings-root");

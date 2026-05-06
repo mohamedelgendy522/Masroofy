@@ -12,10 +12,18 @@ import java.time.*;
 import java.util.*;
 import java.util.ArrayList;
 
+/**
+ * Manages the UI to display user's transaction history.
+ */
 public class HistoryView {
     private AppManager appManager;
     private List<Transaction> transactions;
 
+    /**
+     * Constructs a HistoryView and initializes the UI components.
+     *
+     * @param appManager The central application manager.
+     */
     public HistoryView(AppManager appManager) {
         this.appManager = appManager;
 
@@ -43,6 +51,12 @@ public class HistoryView {
         root.getChildren().add(scroll);
     }
 
+    /**
+     * Maps database Expense objects to the internal Transaction model for view formatting.
+     *
+     * @param expenses The list of raw expenses to format.
+     * @return A list of Transaction objects.
+     */
     private List<Transaction> mapExpenses(List<Expense> expenses) {
         List<Transaction> list = new ArrayList<>();
 
@@ -71,6 +85,9 @@ public class HistoryView {
         return list;
     }
 
+    /**
+     * Refreshes the internal history list and view representation.
+     */
     public void refresh() {
         List<Expense> expenses = appManager.getAllExpenses();
         transactions = mapExpenses(expenses);   // mapExpenses() is already private — no change needed
@@ -87,12 +104,21 @@ public class HistoryView {
     // ── Root ────────────────────────────────────────────────
     private final VBox root;
 
-
+    /**
+     * Retrieves the root layout of the HistoryView.
+     *
+     * @return The root VBox layout.
+     */
     public VBox getView() { return root; }
 
     // ========================================================
     //  TITLE
     // ========================================================
+    /**
+     * Creates the view title label.
+     *
+     * @return A constructed title Label.
+     */
     private Label createTitle() {
         Label title = new Label("History");
         title.getStyleClass().add("page-title");
@@ -102,6 +128,11 @@ public class HistoryView {
     // ========================================================
     //  FILTER BAR
     // ========================================================
+    /**
+     * Creates a filter bar for managing displayed transactions.
+     *
+     * @return An HBox component comprising the filters.
+     */
     private HBox createFilterBar() {
         Button allBtn     = createFilterButton("All",      "ALL");
         Button expenseBtn = createFilterButton("Expenses", "EXPENSE");
@@ -136,12 +167,24 @@ public class HistoryView {
         return bar;
     }
 
+    /**
+     * Instantiates a single filter button.
+     *
+     * @param text   The visible text on the button.
+     * @param filter The underlying filter string value.
+     * @return The configured Button.
+     */
     private Button createFilterButton(String text, String filter) {
         Button btn = new Button(text);
         btn.getStyleClass().add("filter-btn");
         return btn;
     }
 
+    /**
+     * Resets visual states of specific filter buttons.
+     *
+     * @param buttons A variable argument array of Buttons to reset.
+     */
     private void resetFilterButtons(Button... buttons) {
         for (Button b : buttons) {
             b.getStyleClass().remove("filter-btn-active");
@@ -151,9 +194,9 @@ public class HistoryView {
     // ========================================================
     //  TRANSACTION LIST  (rebuilt on every filter change)
     // ========================================================
-    // ========================================================
-    //  TRANSACTION LIST  (rebuilt on every filter change)
-    // ========================================================
+    /**
+     * Re-renders the transaction list elements into the UI, based on filter.
+     */
     private void renderList() {
         listContainer.getChildren().clear();
 
@@ -186,6 +229,12 @@ public class HistoryView {
     // ========================================================
     //  DATE HEADER
     // ========================================================
+    /**
+     * Creates a date group header label.
+     *
+     * @param dateText The formatted date string.
+     * @return The Label containing the text header.
+     */
     private Label createDateHeader(String dateText) {
         Label lbl = new Label(dateText.toUpperCase());
         lbl.getStyleClass().add("history-date-header");
@@ -196,6 +245,12 @@ public class HistoryView {
     // ========================================================
     //  SINGLE TRANSACTION ROW
     // ========================================================
+    /**
+     * Creates the view row for a specific transaction layout.
+     *
+     * @param t The transaction item.
+     * @return The resulting HBox containing the transaction UI elements.
+     */
     private HBox createTransactionRow(Transaction t) {
 
         Label icon = new Label(categoryEmoji(t.category));
@@ -239,6 +294,11 @@ public class HistoryView {
     // ========================================================
     //  EMPTY STATE
     // ========================================================
+    /**
+     * Creates an empty state UI when no transactions match.
+     *
+     * @return A VBox encapsulating the empty state.
+     */
     private VBox createEmptyState() {
         Label icon = new Label("📭");
         icon.setStyle("-fx-font-size: 36px;");
@@ -259,8 +319,14 @@ public class HistoryView {
     }
 
 
+    /**
+     * Formats a raw database date string into human-readable text.
+     *
+     * @param raw The raw date string to evaluate.
+     * @return The mapped friendly date string format.
+     */
     private String formatDate(String raw) {
-        // ✅ الحل هنا: نقص جزء الوقت لو موجود وناخد التاريخ بس
+
         String dateOnly = raw.split("T")[0];
 
         String[] parts = dateOnly.split("-");
@@ -276,8 +342,8 @@ public class HistoryView {
         };
 
         // Date matching format for Today and Yesterday logic
-        String today     = LocalDate.now().toString(); // ✅ خليتها ديناميك بدل تاريخ ثابت
-        String yesterday = LocalDate.now().minusDays(1).toString(); // ✅ ديناميك برضه
+        String today     = LocalDate.now().toString();
+        String yesterday = LocalDate.now().minusDays(1).toString();
 
         if (dateOnly.equals(today))     return "Today, " + months[month] + " " + day;
         if (dateOnly.equals(yesterday)) return "Yesterday, " + months[month] + " " + day;
@@ -285,7 +351,12 @@ public class HistoryView {
         return months[month] + " " + day + ", " + year;
     }
 
-
+    /**
+     * Resolves the CSS style class specific to a category mapping.
+     *
+     * @param category The name of the category.
+     * @return A CSS class specific string for styling.
+     */
     private String categoryTagClass(String category) {
         return switch (category) {
             case "Food"          -> "tag-food";
@@ -297,7 +368,12 @@ public class HistoryView {
         };
     }
 
-
+    /**
+     * Maps a category string to an emoji.
+     *
+     * @param category The string category representation.
+     * @return The emoji corresponding to the category.
+     */
     private String categoryEmoji(String category) {
         return switch (category) {
             case "Food"          -> "🍕";
@@ -313,6 +389,9 @@ public class HistoryView {
     // ========================================================
     // TRANSACTION MODEL
     // ========================================================
+    /**
+     * Represents an internal data model structure for the history view component.
+     */
     static class Transaction {
         final String type;       // "EXPENSE" | "DEPOSIT"
         final String name;       // display name (e.g. "Pizza Palace")
@@ -320,6 +399,15 @@ public class HistoryView {
         final double amount;
         final String date;       // "yyyy-MM-dd"
 
+        /**
+         * Initializes a structured internal transaction model.
+         *
+         * @param type     The transaction type.
+         * @param name     The display name for reference.
+         * @param category The string mapped category value.
+         * @param amount   The specific operation amount.
+         * @param date     The string formatted transaction date.
+         */
         Transaction(String type, String name, String category,
                     double amount, String date) {
             this.type     = type;

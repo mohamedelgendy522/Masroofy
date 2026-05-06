@@ -14,7 +14,10 @@ import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Map;
 
-
+/**
+ * Handles the Dashboard UI logic and user interaction.
+ * Displays balance, stats, budget progress, and category breakdowns.
+ */
 public class DashboardView {
 
     // ── Dependencies ────────────────────────────────────────────────────────
@@ -44,10 +47,21 @@ public class DashboardView {
     //  CONSTRUCTORS
     // ════════════════════════════════════════════════════════════════════════
 
+    /**
+     * Constructs a DashboardView with only an AppManager.
+     *
+     * @param appManager The central application manager.
+     */
     public DashboardView(AppManager appManager) {
         this(appManager, null);
     }
 
+    /**
+     * Constructs a DashboardView with an AppManager and a HistoryView.
+     *
+     * @param appManager  The central application manager.
+     * @param historyView The view handling transaction history.
+     */
     public DashboardView(AppManager appManager, HistoryView historyView) {
         this.appManager  = appManager;
         this.historyView = historyView;
@@ -61,12 +75,28 @@ public class DashboardView {
 
     // ── Accessors ────────────────────────────────────────────────────────────
 
+    /**
+     * Gets the main view layout.
+     *
+     * @return The root VBox layout.
+     */
     public VBox getView() { return root; }
 
+    /**
+     * Sets the HistoryView dependency.
+     *
+     * @param historyView The HistoryView to link.
+     */
     public void setHistoryView(HistoryView historyView) {
         this.historyView = historyView;
     }
 
+    /**
+     * Creates and returns the initial deposit view layout.
+     *
+     * @param onDone Callback to execute after a successful deposit.
+     * @return A VBox containing the initial deposit form.
+     */
     public VBox getInitialDepositView(Runnable onDone) {
         VBox container = new VBox(20);
         container.getStyleClass().add("settings-root");
@@ -76,6 +106,12 @@ public class DashboardView {
         return container;
     }
 
+    /**
+     * Creates and returns the layout displaying add deposit/expense options.
+     *
+     * @param onDone Callback to execute after an action completes.
+     * @return A VBox containing the addition options.
+     */
     public VBox getAddOptionsView(Runnable onDone) {
         VBox container = new VBox(20);
         container.getStyleClass().add("settings-root");
@@ -96,6 +132,12 @@ public class DashboardView {
         return container;
     }
 
+    /**
+     * Displays the add income/deposit form.
+     *
+     * @param parentContainer The container to update.
+     * @param onDone          Callback on successful income addition.
+     */
     private void showAddIncomePage(VBox parentContainer, Runnable onDone) {
         VBox page = new VBox(16);
         page.getStyleClass().add("settings-card");
@@ -123,7 +165,7 @@ public class DashboardView {
             errorLbl.setVisible(false);
             errorLbl.setManaged(false);
 
-            // ✅ شلنا الـ Try-Catch هنا
+
             double amount = Double.parseDouble(amtField.getText().trim());
             if (amount <= 0) {
                 showError(errorLbl, "Enter a valid positive amount.");
@@ -141,6 +183,12 @@ public class DashboardView {
         parentContainer.getChildren().setAll(page);
     }
 
+    /**
+     * Displays the cycle setup (deposit) form.
+     *
+     * @param parentContainer The container to update.
+     * @param onDone          Callback on successful cycle creation.
+     */
     private void showAddDepositPage(VBox parentContainer, Runnable onDone) {
         VBox page = new VBox(16);
         page.getStyleClass().add("settings-card");
@@ -178,7 +226,7 @@ public class DashboardView {
             errorLbl.setVisible(false);
             errorLbl.setManaged(false);
 
-            // ✅ شلنا الـ Try-Catch هنا
+
             double amount = Double.parseDouble(amtField.getText().trim());
             if (amount <= 0) {
                 showError(errorLbl, "Enter a valid positive amount.");
@@ -204,6 +252,12 @@ public class DashboardView {
         parentContainer.getChildren().setAll(page);
     }
 
+    /**
+     * Displays the add expense form.
+     *
+     * @param parentContainer The container to update.
+     * @param onDone          Callback on successful expense addition.
+     */
     private void showAddExpensePage(VBox parentContainer, Runnable onDone) {
         VBox page = new VBox(16);
         page.getStyleClass().add("settings-card");
@@ -242,7 +296,7 @@ public class DashboardView {
             errorLbl.setVisible(false);
             errorLbl.setManaged(false);
 
-            // ✅ شلنا الـ Try-Catch هنا
+
             double amount = Double.parseDouble(amtField.getText().trim());
             if (amount <= 0) {
                 showError(errorLbl, "Enter a valid positive amount.");
@@ -272,6 +326,9 @@ public class DashboardView {
     //  BUILD  (called once — creates the skeleton)
     // ════════════════════════════════════════════════════════════════════════
 
+    /**
+     * Builds the main structure and layout of the dashboard view.
+     */
     private void buildUI() {
         ScrollPane scroll = new ScrollPane();
         scroll.setFitToWidth(true);
@@ -294,6 +351,11 @@ public class DashboardView {
 
     // ── Balance card ─────────────────────────────────────────────────────────
 
+    /**
+     * Builds the current cycle balance card layout.
+     *
+     * @return A VBox representing the balance card.
+     */
     private VBox buildBalanceCard() {
         balanceCycleLbl = new Label();
         balanceCycleLbl.getStyleClass().add("balance-cycle-label");
@@ -312,6 +374,11 @@ public class DashboardView {
 
     // ── Stat row (weekly / daily) ─────────────────────────────────────────────
 
+    /**
+     * Builds the row displaying statistical data (weekly and daily spend limits).
+     *
+     * @return An HBox containing the statistics tiles.
+     */
     private HBox buildStatRow() {
         VBox weeklyTile = buildStatTile("WEEKLY SPEND");
         weeklyValueLbl  = (Label) ((VBox) weeklyTile).getChildren().get(1);
@@ -327,6 +394,12 @@ public class DashboardView {
         return row;
     }
 
+    /**
+     * Builds an individual statistic tile.
+     *
+     * @param labelText The title of the statistic.
+     * @return A VBox containing the tile UI.
+     */
     private VBox buildStatTile(String labelText) {
         Label lbl = new Label(labelText);
         lbl.getStyleClass().add("stat-label");
@@ -342,6 +415,11 @@ public class DashboardView {
 
     // ── Budget progress card ──────────────────────────────────────────────────
 
+    /**
+     * Builds the budget progress tracking card layout.
+     *
+     * @return A VBox representing the budget progress section.
+     */
     private VBox buildBudgetCard() {
         Label title = new Label("BUDGET PROGRESS");
         title.getStyleClass().add("card-title");
@@ -365,6 +443,11 @@ public class DashboardView {
 
     // ── Category breakdown card ───────────────────────────────────────────────
 
+    /**
+     * Builds the category breakdown card layout.
+     *
+     * @return A VBox representing the category section.
+     */
     private VBox buildCategoryCard() {
         Label title = new Label("SPENDING BY CATEGORY");
         title.getStyleClass().add("card-title");
@@ -381,6 +464,9 @@ public class DashboardView {
     //  REFRESH  (re-reads data from AppManager and updates all live labels)
     // ════════════════════════════════════════════════════════════════════════
 
+    /**
+     * Refreshes all dynamically updated components of the dashboard.
+     */
     public void refresh() {
         refreshBalanceCard();
         refreshStatTiles();
@@ -390,6 +476,9 @@ public class DashboardView {
 
     // ── Balance ───────────────────────────────────────────────────────────────
 
+    /**
+     * Refreshes the active balance card statistics.
+     */
     private void refreshBalanceCard() {
         Cycle cycle = appManager.getCurrentCycle();
 
@@ -417,6 +506,9 @@ public class DashboardView {
 
     // ── Stat tiles ────────────────────────────────────────────────────────────
 
+    /**
+     * Refreshes the daily and weekly spending statistics.
+     */
     private void refreshStatTiles() {
         // Weekly spend
         double weekly = appManager.getWeeklyTotalSpent();
@@ -433,6 +525,9 @@ public class DashboardView {
 
     // ── Budget bar ────────────────────────────────────────────────────────────
 
+    /**
+     * Refreshes the overall budget progress bar.
+     */
     private void refreshBudgetBar() {
         Cycle cycle = appManager.getCurrentCycle();
         double spent = appManager.getTotalSpent();
@@ -465,6 +560,9 @@ public class DashboardView {
 
     // ── Category rows ─────────────────────────────────────────────────────────
 
+    /**
+     * Refreshes the rows representing spend data by category.
+     */
     private void refreshCategoryRows() {
         categoryRows.getChildren().clear();
 
@@ -489,6 +587,15 @@ public class DashboardView {
         }
     }
 
+    /**
+     * Builds a single category progress row.
+     *
+     * @param name   The category name.
+     * @param amount The total spent in the category.
+     * @param max    The maximum value used to compute layout proportions.
+     * @param color  The UI color of the progress bar.
+     * @return A VBox representing the category row.
+     */
     private VBox buildCategoryRow(String name, double amount, double max, String color) {
         Label nameLbl = new Label(name);
         nameLbl.getStyleClass().add("cat-name");
@@ -519,6 +626,12 @@ public class DashboardView {
         return new VBox(5, header, track);
     }
 
+    /**
+     * Utility method to display an error message on a label.
+     *
+     * @param lbl The target Label component.
+     * @param msg The error message text.
+     */
     private void showError(Label lbl, String msg) {
         lbl.setText(msg);
         lbl.setVisible(true);

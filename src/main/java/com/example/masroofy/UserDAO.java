@@ -5,14 +5,29 @@ import java.sql.PreparedStatement;
 import java.sql.Statement;
 import java.sql.ResultSet;
 
+/**
+ * Data Access Object for User operations.
+ * Handles database interactions related to user management.
+ */
 class UserDAO {
 
     private DataBaseManager db;
 
+    /**
+     * Constructs a UserDAO with the specified DataBaseManager.
+     *
+     * @param db The database manager used for connecting to the database.
+     */
     public UserDAO(DataBaseManager db) {
         this.db = db;
     }
 
+    /**
+     * Creates a new user in the database.
+     *
+     * @param name The username of the new user.
+     * @return The generated user ID, or -1 if the operation fails.
+     */
     public int createUser(String name) {
 
         String sql = "INSERT INTO users(username) VALUES(?)";
@@ -39,7 +54,12 @@ class UserDAO {
         return -1;
     }
 
-
+    /**
+     * Retrieves a user by their unique ID.
+     *
+     * @param id The user ID.
+     * @return A User object if found, otherwise null.
+     */
     public User getUserById(int id) {
 
         String sql = "SELECT username FROM users WHERE id = ?";
@@ -65,7 +85,12 @@ class UserDAO {
         return null;
     }
 
-
+    /**
+     * Deletes a user from the database.
+     *
+     * @param id The ID of the user to delete.
+     * @return True if the user was successfully deleted, false otherwise.
+     */
     public boolean deleteUser(int id) {
         String del ="DELETE FROM users WHERE id = ?";
         var index = id;

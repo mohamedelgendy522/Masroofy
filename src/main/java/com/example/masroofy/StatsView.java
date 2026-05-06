@@ -18,16 +18,30 @@ import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 import javafx.scene.control.ScrollPane;
 
+/**
+ * Handles the display of visual statistics and graphical representations of the user's cycle.
+ */
 class StatsView {
 
     private final AppManager appManager;
     private final Runnable onViewHistory;
 
+    /**
+     * Constructs a StatsView with the provided dependencies.
+     *
+     * @param appManager    The central application manager.
+     * @param onViewHistory Runnable callback defining history view transitions.
+     */
     StatsView(AppManager appManager, Runnable onViewHistory) {
         this.appManager = appManager;
         this.onViewHistory = onViewHistory;
     }
 
+    /**
+     * Builds the statistics application view components and graphical contexts logic contexts configurations templates settings logic.
+     *
+     * @return Formatted outputs constraints outputs templates formats mapping schemas definitions mapping inputs instances lists variables references mappings contexts attributes parameters.
+     */
     VBox getView() {
         VBox root = new VBox();
         root.getStyleClass().add("settings-root");
@@ -92,6 +106,12 @@ class StatsView {
         return root;
     }
 
+    /**
+     * Extrapolates chart mappings processing values logic textual objects list items lists settings.
+     *
+     * @param pieChart Target mapping instances attributes templates configurations arrays representations outputs components structures.
+     * @return Generated sequences variables objects references contexts instances schemas.
+     */
     private List<Node> buildCategoryRows(PieChart pieChart) {
         Map<String, Double> totals = appManager.getCategoryTotals();
         List<Node> rows = new ArrayList<>();
@@ -144,6 +164,15 @@ class StatsView {
         return rows;
     }
 
+    /**
+     * Interprets schemas textual sequences properties variables values bindings configurations mapping logic attributes bindings representations mappings.
+     *
+     * @param name   Lookup instances list objects.
+     * @param amount Processed inputs outputs parameter formatting values attributes.
+     * @param total  Values variables definitions.
+     * @param color  Settings schemas texts setups templates attributes.
+     * @return Represented textual elements sequences layouts components.
+     */
     private HBox buildCategoryRow(String name, double amount, double total, String color) {
         HBox row = new HBox(10);
         row.setAlignment(Pos.CENTER_LEFT);
@@ -167,6 +196,12 @@ class StatsView {
         return row;
     }
 
+    /**
+     * Mappings mathematical processing mappings representations textual formats properties logic attributes values templates arrays bindings.
+     *
+     * @param value Constants lists mappings.
+     * @return Formats items textual logic mapped properties representations bindings.
+     */
     private String formatAmount(double value) {
         if (value == (long) value) {
             return String.format(Locale.US, "%d", (long) value);
