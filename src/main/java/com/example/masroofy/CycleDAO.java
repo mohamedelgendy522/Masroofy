@@ -157,7 +157,7 @@ class CycleDAO {
 
     // بتضيف مبلغ للـ budget بتاع الـ cycle
     public void addToBudget(int cycleId, double amount) {
-        String sql = "UPDATE cycles SET totalBudget = totalBudget + ? WHERE id = ?";
+        String sql = "UPDATE cycles SET total_budget = total_budget + ? WHERE id = ?";
 
         try (Connection conn = db.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
