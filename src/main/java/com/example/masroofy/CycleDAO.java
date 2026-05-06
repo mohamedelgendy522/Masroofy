@@ -141,14 +141,23 @@ class CycleDAO {
             e.printStackTrace();
         }
     }
+
+    public boolean deleteAllCyclesByUserId(int userId) {
+        String sql = "DELETE FROM cycles WHERE user_id = ?";
+        try (Connection conn = db.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setInt(1, userId);
+            stmt.executeUpdate();
+            return true;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
     // بتضيف مبلغ للـ budget بتاع الـ cycle
     public void addToBudget(int cycleId, double amount) {
-
-        String sql = """
-        UPDATE cycles
-        SET total_budget = total_budget + ?
-        WHERE id=?
-        """;
+        String sql = "UPDATE cycles SET totalBudget = totalBudget + ? WHERE id = ?";
 
         try (Connection conn = db.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {

@@ -59,23 +59,34 @@ class AuthDAO {
     // بتحدث الـ pin hash لما اليوزر يغير الـ PIN
     // completed
     public boolean updatePin(int userId, String newPinHash) {
+        String sql = "UPDATE auth SET pin_hash = ? WHERE user_id = ?";
+        try (Connection conn = db.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
 
-        try (
-                Connection conn = db.getConnection();
-                PreparedStatement stmt = conn.prepareStatement(
-                        "UPDATE auth SET pin_hash = ? WHERE user_id = ?"
-                )
-        ){
-            stmt.setString(1,newPinHash);
-            stmt.setInt(2,userId);
+            stmt.setString(1, newPinHash);
+            stmt.setInt(2, userId);
 
-            if(stmt.executeUpdate() == 1 )
-                return true ;
+            int affectedRows = stmt.executeUpdate();
+            return affectedRows > 0;
 
-        } catch (SQLException e){
-            throw new RuntimeException(e);
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
         }
+    }
 
-        return false;
+    public boolean deleteAuth(int userId) {
+        String sql = "DELETE FROM auth WHERE user_id = ?";
+        try (Connection conn = db.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setInt(1, userId);
+            int affectedRows = stmt.executeUpdate();
+            return affectedRows > 0;
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
     }
 }

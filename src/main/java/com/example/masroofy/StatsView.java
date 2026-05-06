@@ -10,6 +10,9 @@ import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.chart.PieChart;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
@@ -71,10 +74,16 @@ class StatsView {
         Label breakdownTitle = new Label("SPENDING BY CATEGORY");
         breakdownTitle.getStyleClass().add("card-title");
 
-        VBox rows = new VBox(10);
-        rows.getChildren().addAll(buildCategoryRows());
+        PieChart pieChart = new PieChart();
+        pieChart.setLegendVisible(false);
+        pieChart.setLabelsVisible(false);
+        pieChart.setMinHeight(200);
+        pieChart.setPrefHeight(200);
 
-        breakdownCard.getChildren().addAll(breakdownTitle, rows);
+        VBox rows = new VBox(10);
+        rows.getChildren().addAll(buildCategoryRows(pieChart));
+
+        breakdownCard.getChildren().addAll(breakdownTitle, pieChart, rows);
 
         container.getChildren().addAll(title, weeklyCard, breakdownCard);
         scroll.setContent(container);
@@ -83,15 +92,18 @@ class StatsView {
         return root;
     }
 
-    private List<Node> buildCategoryRows() {
+    private List<Node> buildCategoryRows(PieChart pieChart) {
         Map<String, Double> totals = appManager.getCategoryTotals();
         List<Node> rows = new ArrayList<>();
+        ObservableList<PieChart.Data> pieChartData = FXCollections.observableArrayList();
 
         double total = totals.values().stream().mapToDouble(Double::doubleValue).sum();
         if (total <= 0) {
             Label empty = new Label("No data yet");
             empty.getStyleClass().add("section-help");
             rows.add(empty);
+            pieChart.setVisible(false);
+            pieChart.setManaged(false);
             return rows;
         }
 
@@ -104,7 +116,30 @@ class StatsView {
                     String color = colors[colorIndex[0] % colors.length];
                     colorIndex[0]++;
                     rows.add(buildCategoryRow(entry.getKey(), entry.getValue(), total, color));
+
+                    PieChart.Data slice = new PieChart.Data(entry.getKey(), entry.getValue());
+                    pieChartData.add(slice);
                 });
+
+        pieChart.setData(pieChartData);
+
+        // Apply colors to pie chart slices after they are added to the scene chart
+        // Note: colors are applied when nodes are available, we can rely on JavaFX lookup or inline style if needed
+        // For simplicity and immediate effect, we map slice node style after data is set but notice nodes might not be instantiated immediately.
+        int i = 0;
+        for (PieChart.Data data : pieChartData) {
+            String color = colors[i % colors.length];
+            if (data.getNode() != null) {
+                data.getNode().setStyle("-fx-pie-color: " + color + ";");
+            } else {
+                data.nodeProperty().addListener((obs, oldNode, newNode) -> {
+                    if (newNode != null) {
+                        newNode.setStyle("-fx-pie-color: " + color + ";");
+                    }
+                });
+            }
+            i++;
+        }
 
         return rows;
     }

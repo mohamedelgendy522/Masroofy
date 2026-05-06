@@ -70,9 +70,19 @@ public class AppManager {
        }
     }
 
-    // ── CYCLE ─────────────────────────────────
+    public void deleteCurrentAccount() {
+        if (!isLoggedIn()) return;
 
-// ── CYCLE ─────────────────────────────────
+        expenseDAO.deleteAllExpensesByUserId(currentUserId);
+        categoryDAO.deleteAllCategoriesByUserId(currentUserId);
+        cycleDAO.deleteAllCyclesByUserId(currentUserId);
+        authDAO.deleteAuth(currentUserId);
+        userDAO.deleteUser(currentUserId);
+
+        logout();
+    }
+
+    // ── CYCLE ─────────────────────────────────
 
     public void setupCycle(double totalBudget, LocalDate startDate, LocalDate endDate) {
 
