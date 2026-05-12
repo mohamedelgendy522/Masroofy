@@ -12,7 +12,6 @@ class CategoryDAO {
         this.db = db;
     }
 
-    // بتضيف category جديدة للـ cycle وبترجع الـ ID
     public int addCategory(int cycleId, String name) {
         if (categoryExists(cycleId, name)) return -1;
         String sql = "INSERT INTO categories (cycle_id, name) VALUES (?, ?)";
@@ -27,7 +26,6 @@ class CategoryDAO {
         return -1;
     }
 
-    // بتجيب category بالـ ID
     public Category getCategoryById(int id) {
         String sql = "SELECT * FROM categories WHERE id = ?";
         try (Connection conn = db.getConnection();
@@ -39,7 +37,6 @@ class CategoryDAO {
         return null;
     }
 
-    // بتجيب كل الـ categories بتاعة cycle معينة
     public List<Category> getAllCategories(int cycleId) {
         List<Category> list = new ArrayList<>();
         String sql = "SELECT * FROM categories WHERE cycle_id = ?";
@@ -52,7 +49,6 @@ class CategoryDAO {
         return list;
     }
 
-    // بتحذف category بالـ ID
     public boolean deleteCategory(int id) {
         String sql = "DELETE FROM categories WHERE id = ?";
         try (Connection conn = db.getConnection();
@@ -63,7 +59,6 @@ class CategoryDAO {
         return false;
     }
 
-    // بتحذف كل الـ categories بتاعة cycle — بتتكلم لما resetCycle يتعمل
     public boolean deleteAllCategories(int cycleId) {
         String sql = "DELETE FROM categories WHERE cycle_id = ?";
         try (Connection conn = db.getConnection();
@@ -89,7 +84,6 @@ class CategoryDAO {
         }
     }
 
-    // بتتحقق إن الـ category مش موجودة قبل ما تضيفها
     public boolean categoryExists(int cycleId, String name) {
         String sql = "SELECT 1 FROM categories WHERE cycle_id = ? AND name = ?";
         try (Connection conn = db.getConnection();
@@ -101,7 +95,6 @@ class CategoryDAO {
         return false;
     }
 
-    // بتحول row في الdatabase لcategory object بيبقي كل واحد ليه (id,name,cycle_id) بتاعه
     private Category mapRow(ResultSet rs) throws SQLException {
         return new Category(
                 rs.getInt("id"),

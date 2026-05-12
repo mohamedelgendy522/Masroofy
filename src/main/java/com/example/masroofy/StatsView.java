@@ -20,15 +20,15 @@ import javafx.scene.control.ScrollPane;
 
 class StatsView {
 
-    private final AppManager appManager;
+    private final StatsManager statsManager;
     private final Runnable onViewHistory;
 
-    StatsView(AppManager appManager, Runnable onViewHistory) {
-        this.appManager = appManager;
+    StatsView(StatsManager statsManager, Runnable onViewHistory) {
+        this.statsManager = statsManager;
         this.onViewHistory = onViewHistory;
     }
 
-    VBox getView() {
+    public VBox getView() {
         VBox root = new VBox();
         root.getStyleClass().add("settings-root");
 
@@ -50,7 +50,7 @@ class StatsView {
         Label totalLabel = new Label("Total Spent This Week");
         totalLabel.getStyleClass().add("card-title");
 
-        double weeklyTotal = appManager.getWeeklyTotalSpent();
+        double weeklyTotal = statsManager.getWeeklyTotalSpent();
         Label amountLabel = new Label(formatAmount(weeklyTotal));
         amountLabel.setStyle("-fx-text-fill: #EDE9FF; -fx-font-size: 34px; -fx-font-weight: bold;");
 
@@ -93,7 +93,7 @@ class StatsView {
     }
 
     private List<Node> buildCategoryRows(PieChart pieChart) {
-        Map<String, Double> totals = appManager.getCategoryTotals();
+        Map<String, Double> totals = statsManager.getCategoryTotals();
         List<Node> rows = new ArrayList<>();
         ObservableList<PieChart.Data> pieChartData = FXCollections.observableArrayList();
 
@@ -123,9 +123,6 @@ class StatsView {
 
         pieChart.setData(pieChartData);
 
-        // Apply colors to pie chart slices after they are added to the scene chart
-        // Note: colors are applied when nodes are available, we can rely on JavaFX lookup or inline style if needed
-        // For simplicity and immediate effect, we map slice node style after data is set but notice nodes might not be instantiated immediately.
         int i = 0;
         for (PieChart.Data data : pieChartData) {
             String color = colors[i % colors.length];

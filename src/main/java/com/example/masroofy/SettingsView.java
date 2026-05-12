@@ -9,16 +9,22 @@ import javafx.stage.Stage;
 
 class SettingsView {
 
-    private AppManager appManager;
+    private AuthManager authManager;
+    private CycleManager cycleManager;
+    private CategoryManager categoryManager;
     private Runnable onLogout; // Added onLogout
 
-    public SettingsView(AppManager appManager, Runnable onLogout) {
-        this.appManager = appManager;
+    public SettingsView(AuthManager authManager, CycleManager cycleManager, CategoryManager categoryManager, Runnable onLogout) {
+        this.authManager = authManager;
+        this.cycleManager = cycleManager;
+        this.categoryManager = categoryManager;
         this.onLogout = onLogout;
     }
 
-    public SettingsView(AppManager appManager) {
-        this.appManager = appManager;
+    public SettingsView(AuthManager authManager, CycleManager cycleManager, CategoryManager categoryManager) {
+        this.authManager = authManager;
+        this.cycleManager = cycleManager;
+        this.categoryManager = categoryManager;
     }
 
     public VBox getView() {
@@ -43,25 +49,22 @@ class SettingsView {
         confirmBtn.getStyleClass().add("icon-button");
         confirmBtn.setPrefHeight(40);
 
-        // ✅ الحل الجذري: نعمل Label فاضي ونحطه مع الزرار في VBox عشان يبقوا نفس الهيكل
-        Label dummyLabel = createFieldLabel(" "); // مسافة فاضية عشان تاخد نفس الارتفاع
-        VBox btnBox = new VBox(6, dummyLabel, confirmBtn); // نفس الـ spacing بتاع الخانات
+        Label dummyLabel = createFieldLabel(" ");
+        VBox btnBox = new VBox(6, dummyLabel, confirmBtn);
 
         // Feedback label shown after the user tries to change PIN
         Label pinMsg = new Label();
 
         confirmBtn.setOnAction(e -> {
-            boolean ok = appManager.changePin(oldPinField.getText(), newPinField.getText());
+            boolean ok = authManager.changePin(oldPinField.getText(), newPinField.getText());
             pinMsg.getStyleClass().setAll(ok ? "msg-success" : "msg-error");
             pinMsg.setText(ok ? "✓ PIN changed successfully." : "✗ Wrong old PIN.");
             oldPinField.clear();
             newPinField.clear();
         });
 
-        // ✅ حطينا الـ btnBox هنا بدل الزرار لوحده
         HBox pinRow = new HBox(10, oldPinBox, newPinBox, btnBox);
 
-        // المحاذاة هتبقى مظبوطة دلوقتي لأن الهياكل كلها بقت متطابقة
         pinRow.setAlignment(Pos.CENTER_LEFT);
 
         pinRow.getStyleClass().add("form-row");
@@ -89,7 +92,7 @@ class SettingsView {
             confirm.setTitle("Reset Cycle");
             confirm.showAndWait().ifPresent(response -> {
                 if (response == ButtonType.YES) {
-                    appManager.resetCycle();
+                    cycleManager.resetCycle();
                     resetMsg.getStyleClass().setAll("msg-success");
                     resetMsg.setText("✓ Cycle reset.");
                 }
@@ -132,7 +135,7 @@ class SettingsView {
 
         Runnable refreshTags = () -> {
             tagsPane.getChildren().clear();
-            for (String cat : appManager.getCategories()) {
+            for (String cat : categoryManager.getCategories()) {
                 Label tag = new Label(cat);
                 tag.getStyleClass().addAll("tag", resolveTagClass(cat));
                 tagsPane.getChildren().add(tag);
@@ -142,7 +145,7 @@ class SettingsView {
         addCatBtn.setOnAction(e -> {
             String name = addCatField.getText().trim();
             if (!name.isEmpty()) {
-                appManager.addCategory(name);
+                categoryManager.addCategory(name);
                 addCatField.clear();
                 refreshTags.run();
                 catMsg.getStyleClass().setAll("msg-success");
@@ -153,7 +156,7 @@ class SettingsView {
         deleteCatBtn.setOnAction(e -> {
             String name = deleteCatField.getText().trim();
             if (!name.isEmpty()) {
-                boolean ok = appManager.deleteCategory(name);
+                boolean ok = categoryManager.deleteCategory(name);
                 deleteCatField.clear();
                 refreshTags.run();
                 catMsg.getStyleClass().setAll(ok ? "msg-success" : "msg-error");
@@ -189,7 +192,7 @@ class SettingsView {
             confirm.setTitle("Delete Account");
             confirm.showAndWait().ifPresent(response -> {
                 if (response == ButtonType.YES) {
-                    appManager.deleteCurrentAccount();
+                    authManager.deleteCurrentAccount();
                     resetDbMsg.getStyleClass().setAll("msg-success");
                     resetDbMsg.setText("✓ Account deleted.");
                     resetDbBtn.setDisable(true);
@@ -209,7 +212,7 @@ class SettingsView {
         logoutBtn.setMaxWidth(Double.MAX_VALUE);
 
         logoutBtn.setOnAction(e -> {
-            appManager.logout();
+            authManager.logout();
             if (onLogout != null) {
                 onLogout.run();
             }

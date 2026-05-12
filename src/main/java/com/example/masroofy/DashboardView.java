@@ -17,14 +17,18 @@ import java.util.Map;
 
 public class DashboardView {
 
-    // ── Dependencies ────────────────────────────────────────────────────────
-    private final AppManager appManager;
-    private HistoryView historyView;   // optional; set via setHistoryView()
+    //  Dependencies
+    private HistoryView historyView;
 
-    // ── Root container ───────────────────────────────────────────────────────
+    private ExpenseManager expenseManager;
+    private CycleManager cycleManager;
+    private CategoryManager categoryManager;
+    private StatsManager statsManager;
+
+    //  Root container
     private final VBox root;
 
-    // ── Live labels (updated on refresh) ────────────────────────────────────
+    //  Live labels (updated on refresh)
     private Label balanceAmountLbl;
     private Label balanceCycleLbl;
     private Label balanceSubLbl;
@@ -34,22 +38,23 @@ public class DashboardView {
     private StackPane budgetFillPane;
     private VBox categoryRows;
 
-    // ── Category bar colours (cycle through) ────────────────────────────────
+    // Category bar colours (cycle through)
     private static final String[] CAT_COLORS = {
             "#7C3AED", "#4ADE80", "#38BDF8", "#FBBF24",
             "#F87171", "#C084FC", "#FB923C", "#818CF8"
     };
 
-    // ════════════════════════════════════════════════════════════════════════
     //  CONSTRUCTORS
-    // ════════════════════════════════════════════════════════════════════════
 
-    public DashboardView(AppManager appManager) {
-        this(appManager, null);
+    public DashboardView(ExpenseManager expenseManager, CycleManager cycleManager, CategoryManager categoryManager, StatsManager statsManager) {
+        this(expenseManager, cycleManager, categoryManager, statsManager, null);
     }
 
-    public DashboardView(AppManager appManager, HistoryView historyView) {
-        this.appManager  = appManager;
+    public DashboardView(ExpenseManager expenseManager, CycleManager cycleManager, CategoryManager categoryManager, StatsManager statsManager, HistoryView historyView) {
+        this.expenseManager = expenseManager;
+        this.cycleManager = cycleManager;
+        this.categoryManager = categoryManager;
+        this.statsManager = statsManager;
         this.historyView = historyView;
 
         root = new VBox(0);
@@ -59,7 +64,7 @@ public class DashboardView {
         refresh();
     }
 
-    // ── Accessors ────────────────────────────────────────────────────────────
+    //  Accessors
 
     public VBox getView() { return root; }
 
@@ -85,12 +90,12 @@ public class DashboardView {
         Button addDepositBtn = new Button("Add Deposit");
         addDepositBtn.getStyleClass().add("success-button");
         addDepositBtn.setMaxWidth(Double.MAX_VALUE);
-        addDepositBtn.setOnAction(e -> showAddIncomePage(container, onDone));
+        addDepositBtn.setOnAction(e -> showAddIncomePage(container, onDone)); // open income page
 
         Button addExpenseBtn = new Button("Add Expense");
         addExpenseBtn.getStyleClass().add("primary-button");
         addExpenseBtn.setMaxWidth(Double.MAX_VALUE);
-        addExpenseBtn.setOnAction(e -> showAddExpensePage(container, onDone));
+        addExpenseBtn.setOnAction(e -> showAddExpensePage(container, onDone)); // open expense page
 
         container.getChildren().addAll(addDepositBtn, addExpenseBtn);
         return container;
@@ -123,17 +128,16 @@ public class DashboardView {
             errorLbl.setVisible(false);
             errorLbl.setManaged(false);
 
-            // ✅ شلنا الـ Try-Catch هنا
             double amount = Double.parseDouble(amtField.getText().trim());
             if (amount <= 0) {
-                showError(errorLbl, "Enter a valid positive amount.");
+                showError(errorLbl, "Enter a valid positive amount."); // massage error
                 return;
             }
 
-            appManager.addIncome(amount);
+            expenseManager.addIncome(amount); // added deposit
 
             refresh();
-            if (historyView != null) historyView.refresh();
+            if (historyView != null) historyView.refreshHistory();
             if (onDone != null) onDone.run();
         });
 
@@ -178,7 +182,6 @@ public class DashboardView {
             errorLbl.setVisible(false);
             errorLbl.setManaged(false);
 
-            // ✅ شلنا الـ Try-Catch هنا
             double amount = Double.parseDouble(amtField.getText().trim());
             if (amount <= 0) {
                 showError(errorLbl, "Enter a valid positive amount.");
@@ -193,7 +196,7 @@ public class DashboardView {
                 return;
             }
 
-            appManager.setupCycle(amount, start, end);
+            cycleManager.setupCycle(amount, start, end);
 
             refresh();
             if (onDone != null) onDone.run();
@@ -225,7 +228,7 @@ public class DashboardView {
         catCombo.setMaxWidth(Double.MAX_VALUE);
         catCombo.setPromptText("Select category…");
 
-        List<String> cats = appManager.getCategories();
+        List<String> cats = categoryManager.getCategories();
         catCombo.getItems().addAll(cats);
         if (!cats.isEmpty()) catCombo.getSelectionModel().selectFirst();
 
@@ -242,7 +245,6 @@ public class DashboardView {
             errorLbl.setVisible(false);
             errorLbl.setManaged(false);
 
-            // ✅ شلنا الـ Try-Catch هنا
             double amount = Double.parseDouble(amtField.getText().trim());
             if (amount <= 0) {
                 showError(errorLbl, "Enter a valid positive amount.");
@@ -255,11 +257,11 @@ public class DashboardView {
                 return;
             }
 
-            int catId = appManager.getCategoryIdByName(selectedCat);
-            appManager.addExpense(amount, catId, "EXPENSE");
+            int catId = categoryManager.getCategoryIdByName(selectedCat);// take category by name
+            expenseManager.addExpense(amount, catId, "EXPENSE");
 
             refresh();
-            if (historyView != null) historyView.refresh();
+            if (historyView != null) historyView.refreshHistory();
             if (onDone != null) onDone.run();
         });
 
@@ -268,9 +270,7 @@ public class DashboardView {
         parentContainer.getChildren().setAll(page);
     }
 
-    // ════════════════════════════════════════════════════════════════════════
     //  BUILD  (called once — creates the skeleton)
-    // ════════════════════════════════════════════════════════════════════════
 
     private void buildUI() {
         ScrollPane scroll = new ScrollPane();
@@ -292,7 +292,7 @@ public class DashboardView {
         root.getChildren().add(scroll);
     }
 
-    // ── Balance card ─────────────────────────────────────────────────────────
+    //  Balance card
 
     private VBox buildBalanceCard() {
         balanceCycleLbl = new Label();
@@ -310,7 +310,7 @@ public class DashboardView {
         return card;
     }
 
-    // ── Stat row (weekly / daily) ─────────────────────────────────────────────
+    //  Stat row (weekly / daily)
 
     private HBox buildStatRow() {
         VBox weeklyTile = buildStatTile("WEEKLY SPEND");
@@ -340,7 +340,7 @@ public class DashboardView {
         return tile;
     }
 
-    // ── Budget progress card ──────────────────────────────────────────────────
+    //  Budget progress card
 
     private VBox buildBudgetCard() {
         Label title = new Label("BUDGET PROGRESS");
@@ -363,7 +363,7 @@ public class DashboardView {
         return card;
     }
 
-    // ── Category breakdown card ───────────────────────────────────────────────
+    //  Category breakdown card
 
     private VBox buildCategoryCard() {
         Label title = new Label("SPENDING BY CATEGORY");
@@ -377,9 +377,7 @@ public class DashboardView {
     }
 
 
-    // ════════════════════════════════════════════════════════════════════════
     //  REFRESH  (re-reads data from AppManager and updates all live labels)
-    // ════════════════════════════════════════════════════════════════════════
 
     public void refresh() {
         refreshBalanceCard();
@@ -388,10 +386,10 @@ public class DashboardView {
         refreshCategoryRows();
     }
 
-    // ── Balance ───────────────────────────────────────────────────────────────
+    //  Balance
 
     private void refreshBalanceCard() {
-        Cycle cycle = appManager.getCurrentCycle();
+        Cycle cycle = cycleManager.getCurrentCycle();
 
         if (cycle == null) {
             balanceCycleLbl.setText("NO ACTIVE CYCLE");
@@ -400,13 +398,12 @@ public class DashboardView {
             return;
         }
 
-        // Header label: "TOTAL BALANCE — MAY 2026"
         String monthYear = cycle.getStartDate()
                 .format(DateTimeFormatter.ofPattern("MMMM yyyy")).toUpperCase();
         balanceCycleLbl.setText("TOTAL BALANCE — " + monthYear);
 
         // Main amount
-        double remaining = appManager.getRemainingBalance();
+        double remaining = statsManager.getRemainingBalance();
         balanceAmountLbl.setText(String.format("EGP %,.2f", remaining));
 
         // Sub label
@@ -415,27 +412,27 @@ public class DashboardView {
         balanceSubLbl.setText("Cycle: " + start + " → " + end);
     }
 
-    // ── Stat tiles ────────────────────────────────────────────────────────────
+    //  Stat tiles
 
     private void refreshStatTiles() {
         // Weekly spend
-        double weekly = appManager.getWeeklyTotalSpent();
+        double weekly = statsManager.getWeeklyTotalSpent();
         weeklyValueLbl.setText(String.format("EGP %,.0f", weekly));
         weeklyValueLbl.getStyleClass().removeAll("stat-safe", "stat-warn", "stat-danger");
         weeklyValueLbl.getStyleClass().add("stat-warn");
 
         // Daily limit
-        double daily = appManager.getDailyLimit();
+        double daily = statsManager.getDailyLimit();
         dailyValueLbl.setText(String.format("EGP %,.0f", daily));
         dailyValueLbl.getStyleClass().removeAll("stat-safe", "stat-warn", "stat-danger");
         dailyValueLbl.getStyleClass().add(daily > 0 ? "stat-safe" : "stat-danger");
     }
 
-    // ── Budget bar ────────────────────────────────────────────────────────────
+    //  Budget bar
 
     private void refreshBudgetBar() {
-        Cycle cycle = appManager.getCurrentCycle();
-        double spent = appManager.getTotalSpent();
+        Cycle cycle = cycleManager.getCurrentCycle();
+        double spent = statsManager.getTotalSpent();
 
         budgetSpentLbl.setText(String.format("EGP %,.2f spent", spent));
 
@@ -463,12 +460,12 @@ public class DashboardView {
         }
     }
 
-    // ── Category rows ─────────────────────────────────────────────────────────
+    //  Category rows
 
     private void refreshCategoryRows() {
         categoryRows.getChildren().clear();
 
-        Map<String, Double> totals = appManager.getCategoryTotals();
+        Map<String, Double> totals = statsManager.getCategoryTotals();
         if (totals == null || totals.isEmpty()) {
             Label empty = new Label("No spending data yet.");
             empty.getStyleClass().add("section-help");

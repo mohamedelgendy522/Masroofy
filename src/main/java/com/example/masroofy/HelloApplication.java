@@ -22,18 +22,34 @@ public class HelloApplication extends Application {
     private static final int PHONE_HEIGHT = 800;
 
     private final DataBaseManager dbManager = new DataBaseManager();
-    private AppManager appManager;
+    private AuthManager authManager;
+    private CycleManager cycleManager;
+    private ExpenseManager expenseManager;
+    private CategoryManager categoryManager;
+    private StatsManager statsManager;
     private BorderPane mainLayout;
 
     @Override
     public void start(Stage stage) {
         dbManager.initDB();
-        appManager = new AppManager(dbManager);
+        
+        UserDAO userDAO = new UserDAO(dbManager);
+        CycleDAO cycleDAO = new CycleDAO(dbManager);
+        ExpenseDAO expenseDAO = new ExpenseDAO(dbManager);
+        AuthDAO authDAO = new AuthDAO(dbManager);
+        CategoryDAO categoryDAO = new CategoryDAO(dbManager);
+        AUTH auth = new AUTH();
+
+        authManager = new AuthManager(userDAO, authDAO, cycleDAO, expenseDAO, categoryDAO, auth);
+        categoryManager = new CategoryManager(authManager, cycleDAO, categoryDAO);
+        cycleManager = new CycleManager(authManager, cycleDAO, categoryManager);
+        expenseManager = new ExpenseManager(cycleDAO, expenseDAO, authManager);
+        statsManager = new StatsManager(cycleDAO, expenseDAO, authManager);
 
         Scene scene = new Scene(new VBox(), PHONE_WIDTH, PHONE_HEIGHT);
         scene.getStylesheets().add(getClass().getResource("/com/example/masroofy/style.css").toExternalForm());
 
-        scene.setRoot(buildLoginRoot(scene, appManager));
+        scene.setRoot(buildLoginRoot(scene));
 
         stage.setTitle("Masroofy App");
         stage.setScene(scene);
@@ -41,7 +57,7 @@ public class HelloApplication extends Application {
         stage.show();
     }
 
-    private void showMainApp(Scene scene, AppManager appManager) {
+    private void showMainApp(Scene scene) {
         mainLayout = new BorderPane();
         mainLayout.getStyleClass().add("settings-root");
 
@@ -52,7 +68,7 @@ public class HelloApplication extends Application {
         topHeader.setAlignment(Pos.CENTER_LEFT);
         topHeader.setStyle("-fx-background-radius: 0 0 16 16; -fx-border-radius: 0 0 16 16; -fx-border-width: 0 0 1 0;");
 
-        String userName = appManager.getCurrentUserName();
+        String userName = authManager.getCurrentUserName(); ///
         if (userName == null || userName.isEmpty()) userName = "User";
 
         Label welcomeLabel = new Label("Welcome, " + userName);
@@ -65,10 +81,10 @@ public class HelloApplication extends Application {
         settingsBtn.getStyleClass().add("icon-button");
         settingsBtn.setStyle("-fx-font-size: 18px; -fx-padding: 0; -fx-min-width: 38px; -fx-min-height: 38px; -fx-pref-width: 38px; -fx-pref-height: 38px;");
         settingsBtn.setOnAction(e -> {
-            mainLayout.setCenter(new SettingsView(appManager, () -> {
-                scene.setRoot(buildLoginRoot(scene, appManager));
+            mainLayout.setCenter(new SettingsView(authManager, cycleManager, categoryManager, () -> {
+                scene.setRoot(buildLoginRoot(scene));
             }).getView());
-        });
+        });  // open settings
 
         topHeader.getChildren().addAll(welcomeLabel, spacer, settingsBtn);
         mainLayout.setTop(topHeader);
@@ -83,19 +99,19 @@ public class HelloApplication extends Application {
         Button histBtn = createNavButton("History");
         Button addBtn = createNavButton("Add");
 
-        dashBtn.setOnAction(e -> mainLayout.setCenter(new DashboardView(appManager).getView()));
-        statsBtn.setOnAction(e -> mainLayout.setCenter(new StatsView(appManager, () -> mainLayout.setCenter(new HistoryView(appManager).getView())).getView()));
-        histBtn.setOnAction(e -> mainLayout.setCenter(new HistoryView(appManager).getView()));
+        dashBtn.setOnAction(e -> mainLayout.setCenter(new DashboardView(expenseManager, cycleManager, categoryManager, statsManager).getView()));
+        statsBtn.setOnAction(e -> mainLayout.setCenter(new StatsView(statsManager, () -> mainLayout.setCenter(new HistoryView(expenseManager, categoryManager).getView())).getView()));
+        histBtn.setOnAction(e -> mainLayout.setCenter(new HistoryView(expenseManager, categoryManager).getView()));
         addBtn.setOnAction(e -> {
-            DashboardView dv = new DashboardView(appManager);
-            dv.setHistoryView(new HistoryView(appManager));
-            mainLayout.setCenter(dv.getAddOptionsView(() -> mainLayout.setCenter(new DashboardView(appManager).getView())));
+            DashboardView dv = new DashboardView(expenseManager, cycleManager, categoryManager, statsManager);
+            dv.setHistoryView(new HistoryView(expenseManager, categoryManager));
+            mainLayout.setCenter(dv.getAddOptionsView(() -> mainLayout.setCenter(new DashboardView(expenseManager, cycleManager, categoryManager, statsManager).getView())));
         });
 
         bottomNav.getChildren().addAll(dashBtn, statsBtn, histBtn, addBtn);
 
         mainLayout.setBottom(bottomNav);
-        mainLayout.setCenter(new DashboardView(appManager).getView());
+        mainLayout.setCenter(new DashboardView(expenseManager, cycleManager, categoryManager, statsManager).getView());
 
         scene.setRoot(mainLayout);
     }
@@ -108,7 +124,7 @@ public class HelloApplication extends Application {
         return btn;
     }
 
-    private VBox buildLoginRoot(Scene scene, AppManager appManager)     {
+    private VBox buildLoginRoot(Scene scene)     {
         VBox root = new VBox(16);
         root.getStyleClass().add("settings-root");
         root.setPadding(new Insets(40, 28, 40, 28));
@@ -174,7 +190,7 @@ public class HelloApplication extends Application {
         Button registerButton = new Button("Register");
         registerButton.getStyleClass().add("section-help");
         registerButton.setStyle("-fx-background-color: transparent; -fx-underline: true; -fx-text-fill: #7C3AED;");
-        registerButton.setOnAction(event -> scene.setRoot(buildRegisterRoot(scene, appManager)));
+        registerButton.setOnAction(event -> scene.setRoot(buildRegisterRoot(scene)));
 
         HBox registerRow = new HBox(6, registerHint, registerButton);
         registerRow.setAlignment(Pos.CENTER);
@@ -189,19 +205,19 @@ public class HelloApplication extends Application {
             }
 
             int userId = Integer.parseInt(userIdText);
-            boolean loggedIn = appManager.login(userId, pinText);
+            boolean loggedIn = authManager.login(userId, pinText);
             if (loggedIn) {
-                // ✅ التعديل التاني: لو أول مرة يفتح ومفيش Cycle هنوديه يضيف Deposit، ولو فيه Cycle يدخل Dashboard علطول
-                if (appManager.getCurrentCycle() == null) {
-                    DashboardView dv = new DashboardView(appManager);
-                    scene.setRoot(dv.getInitialDepositView(() -> showMainApp(scene, appManager)));
+                if (cycleManager.getCurrentCycle() == null) {
+                    DashboardView dv = new DashboardView(expenseManager, cycleManager, categoryManager, statsManager);
+                    scene.setRoot(dv.getInitialDepositView(() -> showMainApp(scene)));
+                    // first open , InitialDeposit
                 } else {
-                    showMainApp(scene, appManager);
+                    showMainApp(scene);// open main app
                 }
             } else {
                 statusLabel.setText("Invalid ID or PIN.");
             }
-        });
+        }); // login
 
         card.getChildren().addAll(
                 brandBox,
@@ -227,7 +243,7 @@ public class HelloApplication extends Application {
         return root;
     }
 
-    private VBox buildRegisterRoot(Scene scene, AppManager appManager) {
+    private VBox buildRegisterRoot(Scene scene) {
         VBox root = new VBox(16);
         root.getStyleClass().add("settings-root");
         root.setPadding(new Insets(40, 28, 40, 28));
@@ -315,7 +331,7 @@ public class HelloApplication extends Application {
                 return;
             }
 
-            int userId = appManager.registerUser(pin, name);
+            int userId = authManager.registerUser(pin, name);
             if (userId == -1) {
                 statusLabel.setText("Registration failed.");
             } else {
@@ -325,14 +341,14 @@ public class HelloApplication extends Application {
                 alert.setContentText("Your User ID is: " + userId + "\n\nPlease save this ID to log in.");
                 alert.showAndWait();
 
-                scene.setRoot(buildLoginRoot(scene, appManager));
+                scene.setRoot(buildLoginRoot(scene));
             }
-        });
+        }); // register and open login page
 
         Button backButton = new Button("Back to login");
         backButton.getStyleClass().add("section-help");
         backButton.setStyle("-fx-background-color: transparent;");
-        backButton.setOnAction(event -> scene.setRoot(buildLoginRoot(scene, appManager)));
+        backButton.setOnAction(event -> scene.setRoot(buildLoginRoot(scene)));
 
         card.getChildren().addAll(
                 brandBox,
@@ -359,3 +375,4 @@ public class HelloApplication extends Application {
         return root;
     }
 }
+
