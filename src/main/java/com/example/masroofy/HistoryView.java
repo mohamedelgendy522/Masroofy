@@ -13,9 +13,9 @@ import java.util.*;
 import java.util.ArrayList;
 
 public class HistoryView {
-    private ExpenseManager expenseManager;
-    private CategoryManager categoryManager;
-    private List<Transaction> transactions;
+x    private final ExpenseManager expenseManager;
+    private final CategoryManager categoryManager;
+    private final List<Transaction> transactions;
 
     public HistoryView(ExpenseManager expenseManager, CategoryManager categoryManager) {
         this.expenseManager = expenseManager;
@@ -104,8 +104,7 @@ public class HistoryView {
     private String activeFilter = "ALL";   // ALL | EXPENSE | DEPOSIT
 
     // ── UI containers rebuilt on filter change ──────────────
-    private VBox listContainer;
-
+    private final VBox listContainer;
 
     // ── Root ────────────────────────────────────────────────
     private final VBox root;
@@ -122,9 +121,9 @@ public class HistoryView {
 
     //  FILTER BAR
     private HBox createFilterBar() {
-        Button allBtn     = createFilterButton("All",      "ALL");
-        Button expenseBtn = createFilterButton("Expenses", "EXPENSE");
-        Button depositBtn = createFilterButton("Deposits", "DEPOSIT");
+        Button allBtn     = createFilterButton("All");
+        Button expenseBtn = createFilterButton("Expenses");
+        Button depositBtn = createFilterButton("Deposits");
 
         // Mark "All" active on startup
         allBtn.getStyleClass().add("filter-btn-active");
@@ -155,7 +154,7 @@ public class HistoryView {
         return bar;
     }
 
-    private Button createFilterButton(String text, String filter) {
+    private Button createFilterButton(String text) {
         Button btn = new Button(text);
         btn.getStyleClass().add("filter-btn");
         return btn;
