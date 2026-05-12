@@ -13,14 +13,16 @@ import java.util.*;
 import java.util.ArrayList;
 
 public class HistoryView {
-    private AppManager appManager;
-    private List<Transaction> transactions;
+x    private final ExpenseManager expenseManager;
+    private final CategoryManager categoryManager;
+    private final List<Transaction> transactions;
 
-    public HistoryView(AppManager appManager) {
-        this.appManager = appManager;
+    public HistoryView(ExpenseManager expenseManager, CategoryManager categoryManager) {
+        this.expenseManager = expenseManager;
+        this.categoryManager = categoryManager;
 
-        List<Expense> expenses = appManager.getAllExpenses();
-        transactions = mapExpenses(expenses);
+        List<Expense> expenses = expenseManager.getAllExpenses();
+        this.transactions = mapExpenses(expenses);
 
         root = new VBox(0);
         root.getStyleClass().add("settings-root");
@@ -48,13 +50,13 @@ public class HistoryView {
 
         for (Expense e : expenses) {
 
-            String type = e.getType(); // "EXPENSE" أو "INCOME"
+            String type = e.getType();
             String category;
             if ("DEPOSIT".equalsIgnoreCase(type)) {
-                category = "Income";
+                category = "Income"; //////////////////////////////////
             } else {
-                category = appManager.getCategoryNameById(e.getCategoryid());
-                if (category == null) category = "Unknown";
+                category = categoryManager.getCategoryNameById(e.getCategoryid());
+                if (category == null) category = "Unknown";//////////////////// by defult
             }
             double amount = e.getAmount();
             String date = e.getDate().toString();
@@ -71,18 +73,38 @@ public class HistoryView {
         return list;
     }
 
-    public void refresh() {
-        List<Expense> expenses = appManager.getAllExpenses();
-        transactions = mapExpenses(expenses);   // mapExpenses() is already private — no change needed
-        renderList();                            // renderList() is already private — no change needed
+    public void refreshHistory() {
+        transactions.clear();
+        List<Expense> expenses = expenseManager.getAllExpenses();
+        for (Expense e : expenses) {
+
+            String type = e.getType();
+            String category;
+            if ("DEPOSIT".equalsIgnoreCase(type)) {
+                category = "Income"; //////////////////////////////////
+            } else {
+                category = categoryManager.getCategoryNameById(e.getCategoryid());
+                if (category == null) category = "Unknown";//////////////////// by defult
+            }
+            double amount = e.getAmount();
+            String date = e.getDate().toString();
+
+            transactions.add(new Transaction(
+                    type,
+                    category,
+                    category,
+                    amount,
+                    date
+            ));
+        }
+        renderList();
     }
 
     // ── Filter state ────────────────────────────────────────
     private String activeFilter = "ALL";   // ALL | EXPENSE | DEPOSIT
 
     // ── UI containers rebuilt on filter change ──────────────
-    private VBox listContainer;
-
+    private final VBox listContainer;
 
     // ── Root ────────────────────────────────────────────────
     private final VBox root;
@@ -90,22 +112,18 @@ public class HistoryView {
 
     public VBox getView() { return root; }
 
-    // ========================================================
     //  TITLE
-    // ========================================================
     private Label createTitle() {
         Label title = new Label("History");
         title.getStyleClass().add("page-title");
         return title;
     }
 
-    // ========================================================
     //  FILTER BAR
-    // ========================================================
     private HBox createFilterBar() {
-        Button allBtn     = createFilterButton("All",      "ALL");
-        Button expenseBtn = createFilterButton("Expenses", "EXPENSE");
-        Button depositBtn = createFilterButton("Deposits", "DEPOSIT");
+        Button allBtn     = createFilterButton("All");
+        Button expenseBtn = createFilterButton("Expenses");
+        Button depositBtn = createFilterButton("Deposits");
 
         // Mark "All" active on startup
         allBtn.getStyleClass().add("filter-btn-active");
@@ -115,32 +133,32 @@ public class HistoryView {
             resetFilterButtons(allBtn, expenseBtn, depositBtn);
             allBtn.getStyleClass().add("filter-btn-active");
             renderList();
-        });
+        }); // show all
 
         expenseBtn.setOnAction(e -> {
             activeFilter = "EXPENSE";
             resetFilterButtons(allBtn, expenseBtn, depositBtn);
             expenseBtn.getStyleClass().add("filter-btn-active");
             renderList();
-        });
+        }); // show expense
 
         depositBtn.setOnAction(e -> {
             activeFilter = "DEPOSIT";
             resetFilterButtons(allBtn, expenseBtn, depositBtn);
             depositBtn.getStyleClass().add("filter-btn-active");
             renderList();
-        });
+        }); // show deposit
 
         HBox bar = new HBox(8, allBtn, expenseBtn, depositBtn);
         bar.setAlignment(Pos.CENTER_LEFT);
         return bar;
     }
 
-    private Button createFilterButton(String text, String filter) {
+    private Button createFilterButton(String text) {
         Button btn = new Button(text);
         btn.getStyleClass().add("filter-btn");
         return btn;
-    }
+    } // filter
 
     private void resetFilterButtons(Button... buttons) {
         for (Button b : buttons) {
@@ -148,12 +166,7 @@ public class HistoryView {
         }
     }
 
-    // ========================================================
     //  TRANSACTION LIST  (rebuilt on every filter change)
-    // ========================================================
-    // ========================================================
-    //  TRANSACTION LIST  (rebuilt on every filter change)
-    // ========================================================
     private void renderList() {
         listContainer.getChildren().clear();
 
@@ -183,9 +196,7 @@ public class HistoryView {
         }
     }
 
-    // ========================================================
     //  DATE HEADER
-    // ========================================================
     private Label createDateHeader(String dateText) {
         Label lbl = new Label(dateText.toUpperCase());
         lbl.getStyleClass().add("history-date-header");
@@ -193,9 +204,7 @@ public class HistoryView {
         return lbl;
     }
 
-    // ========================================================
     //  SINGLE TRANSACTION ROW
-    // ========================================================
     private HBox createTransactionRow(Transaction t) {
 
         Label icon = new Label(categoryEmoji(t.category));
@@ -236,9 +245,7 @@ public class HistoryView {
         return row;
     }
 
-    // ========================================================
     //  EMPTY STATE
-    // ========================================================
     private VBox createEmptyState() {
         Label icon = new Label("📭");
         icon.setStyle("-fx-font-size: 36px;");
@@ -260,7 +267,6 @@ public class HistoryView {
 
 
     private String formatDate(String raw) {
-        // ✅ الحل هنا: نقص جزء الوقت لو موجود وناخد التاريخ بس
         String dateOnly = raw.split("T")[0];
 
         String[] parts = dateOnly.split("-");
@@ -276,8 +282,9 @@ public class HistoryView {
         };
 
         // Date matching format for Today and Yesterday logic
-        String today     = LocalDate.now().toString(); // ✅ خليتها ديناميك بدل تاريخ ثابت
-        String yesterday = LocalDate.now().minusDays(1).toString(); // ✅ ديناميك برضه
+        String today     = LocalDate.now().toString();
+        String yesterday = LocalDate.now().minusDays(1).toString();
+
 
         if (dateOnly.equals(today))     return "Today, " + months[month] + " " + day;
         if (dateOnly.equals(yesterday)) return "Yesterday, " + months[month] + " " + day;
@@ -314,11 +321,11 @@ public class HistoryView {
     // TRANSACTION MODEL
     // ========================================================
     static class Transaction {
-        final String type;       // "EXPENSE" | "DEPOSIT"
-        final String name;       // display name (e.g. "Pizza Palace")
-        final String category;   // (e.g. "Food")
+        final String type;
+        final String name;
+        final String category;
         final double amount;
-        final String date;       // "yyyy-MM-dd"
+        final String date;
 
         Transaction(String type, String name, String category,
                     double amount, String date) {

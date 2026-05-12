@@ -63,7 +63,7 @@ public class DataBaseManager {
         );""";
 
         String unique= """
-                CREATE UNIQUE INDEX idx_category_unique ON categories(cycle_id, name);
+                CREATE UNIQUE INDEX IF NOT EXISTS idx_category_unique ON categories(cycle_id, name);
         """;
 
         try (Connection conn = getConnection()) {

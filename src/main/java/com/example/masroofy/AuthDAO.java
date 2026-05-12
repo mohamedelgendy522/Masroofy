@@ -9,8 +9,6 @@ class AuthDAO {
         this.db = db;
     }
 
-    // بتحفظ الـ pin hash في DB للـ user
-    // completed
     public boolean savePin(int userId, String pinHash) {
 
         try (
@@ -31,8 +29,6 @@ class AuthDAO {
         return false ;
     }
 
-    // بتجيب الـ من DB عشان تتحقق منه
-    // completed
     public String getPin(int userId) {
 
         try (
@@ -56,8 +52,6 @@ class AuthDAO {
         return null;
     }
 
-    // بتحدث الـ pin hash لما اليوزر يغير الـ PIN
-    // completed
     public boolean updatePin(int userId, String newPinHash) {
         String sql = "UPDATE auth SET pin_hash = ? WHERE user_id = ?";
         try (Connection conn = db.getConnection();

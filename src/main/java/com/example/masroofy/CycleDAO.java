@@ -10,7 +10,7 @@ class CycleDAO {
     public CycleDAO(DataBaseManager db) {
         this.db = db;
     }
-    // بتنشئ الـ cycle لأول مرة لليوزر
+
     public void setupCycle(Cycle c) {
 
         String sql = """
@@ -32,7 +32,7 @@ class CycleDAO {
             e.printStackTrace();
         }
     }
-    // بتجيب الـ cycle الخاصة بيوزر معين
+
     public Cycle getCycleByUser(int userId) {
 
         String sql = "SELECT * FROM cycles WHERE user_id=?";
@@ -61,7 +61,6 @@ class CycleDAO {
         return null;
     }
 
-    // بتجيب الـ cycle بالـ ID بتاعها
     public Cycle getCycleById(int id) {
 
         String sql = "SELECT * FROM cycles WHERE id = ?";
@@ -90,7 +89,7 @@ class CycleDAO {
 
         return null;
     }
-    // بتحدث بيانات الـ cycle
+
     public boolean updateCycle(Cycle c) {
 
         String sql = """
@@ -155,7 +154,6 @@ class CycleDAO {
         }
     }
 
-    // بتضيف مبلغ للـ budget بتاع الـ cycle
     public void addToBudget(int cycleId, double amount) {
         String sql = "UPDATE cycles SET total_budget = total_budget + ? WHERE id = ?";
 
